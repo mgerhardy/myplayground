@@ -88,12 +88,8 @@ inline float Rect::getHeight() const {
 	return _height;
 }
 
-inline bool operator==(const Rect& other) const {
+inline bool Rect::operator==(const Rect& other) const {
 	return _x == other._x && _z == other._z && _width == other._width && _height == other._height;
-}
-
-inline bool Rect::contains(const Rect& other) const {
-	return rect == intersection(*this, other);
 }
 
 inline bool Rect::intersectsWith(const Rect& other) const {
@@ -191,7 +187,6 @@ private:
 			return true;
 		}
 
-		// is the node empty
 		inline bool isEmpty() const {
 			return _area.isEmpty() || _nodes.empty();
 		}
