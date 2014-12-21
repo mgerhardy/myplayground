@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 PROJECT(test)
 
 set(CMAKE_MODULE_PATH /usr/share/OGRE/cmake/modules)
+set(CMAKE_MODULE_PATH /usr/local/lib/OGRE/cmake)
 
 FIND_PACKAGE(OGRE)
 FIND_PACKAGE(OIS)
