@@ -10,6 +10,8 @@
 #include <OgreConfigFile.h>
 #include <OgreOverlaySystem.h>
 #include <OgreWindowEventUtilities.h>
+#include <OgreTextureManager.h>
+#include <OgreMaterialManager.h>
 
 #include <OISEvents.h>
 #include <OISInputManager.h>
@@ -28,15 +30,9 @@
 #      define OGRE_STATIC_Direct3D10
 #    endif
 #  endif
-#  define OGRE_STATIC_BSPSceneManager
-#  define OGRE_STATIC_ParticleFX
-#  define OGRE_STATIC_CgProgramManager
-#  ifdef OGRE_USE_PCZ
-#    define OGRE_STATIC_PCZSceneManager
-#    define OGRE_STATIC_OctreeZone
-#  else
-#    define OGRE_STATIC_OctreeSceneManager
-#  endif
+//#  define OGRE_STATIC_BSPSceneManager
+//#  define OGRE_STATIC_ParticleFX
+#  define OGRE_STATIC_OctreeSceneManager
 #  include "OgreStaticPluginLoader.h"
 #endif
 

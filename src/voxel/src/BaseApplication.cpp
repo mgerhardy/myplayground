@@ -5,7 +5,7 @@
 #endif
 
 BaseApplication::BaseApplication(void) :
-		mRoot(0), mCamera(0), mSceneMgr(0), mWindow(0), mResourcesCfg(Ogre::StringUtil::BLANK), mPluginsCfg(Ogre::StringUtil::BLANK), mTrayMgr(0), mCameraMan(
+		mRoot(0), mCamera(0), mSceneMgr(0), mWindow(0), mResourcesCfg(Ogre::BLANKSTRING), mPluginsCfg(Ogre::BLANKSTRING), mTrayMgr(0), mCameraMan(
 				0), mDetailsPanel(0), mCursorWasVisible(false), mShutDown(false), mInputManager(0), mMouse(0), mKeyboard(0), mOverlaySystem(0) {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 	m_ResourcePath = Ogre::macBundlePath() + "/Contents/Resources/";

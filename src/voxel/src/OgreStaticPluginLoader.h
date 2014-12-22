@@ -6,40 +6,40 @@
 
 // Static plugin headers
 #ifdef OGRE_STATIC_CgProgramManager
-#  include "OgreCgPlugin.h"
+#  include <OgreCgPlugin.h>
 #endif
 #ifdef OGRE_STATIC_OctreeSceneManager
-#  include "OgreOctreePlugin.h"
+#  include <OgreOctreePlugin.h>
 #endif
 #ifdef OGRE_STATIC_ParticleFX
-#  include "OgreParticleFXPlugin.h"
+#  include <OgreParticleFXPlugin.h>
 #endif
 #ifdef OGRE_STATIC_BSPSceneManager
-#  include "OgreBspSceneManagerPlugin.h"
+#  include <OgreBspSceneManagerPlugin.h>
 #endif
 #ifdef OGRE_STATIC_GL
-#  include "OgreGLPlugin.h"
+#  include <OgreGLPlugin.h>
 #endif
 #ifdef OGRE_STATIC_GL3Plus
-#  include "OgreGL3PlusPlugin.h"
+#  include <OgreGL3PlusPlugin.h>
 #endif
 #ifdef OGRE_STATIC_GLES
-#  include "OgreGLESPlugin.h"
+#  include <OgreGLESPlugin.h>
 #endif
 #ifdef OGRE_STATIC_GLES2
-#  include "OgreGLES2Plugin.h"
+#  include <OgreGLES2Plugin.h>
 #endif
 #ifdef OGRE_STATIC_Direct3D9
-#  include "OgreD3D9Plugin.h"
+#  include <OgreD3D9Plugin.h>
 #endif
 #ifdef OGRE_STATIC_Direct3D11
-#  include "OgreD3D11Plugin.h"
+#  include <OgreD3D11Plugin.h>
 #endif
 #ifdef OGRE_STATIC_PCZSceneManager
-#  include "OgrePCZPlugin.h"
+#  include <OgrePCZPlugin.h>
 #endif
 #ifdef OGRE_STATIC_OctreeZone
-#  include "OgreOctreeZonePlugin.h"
+#  include <OgreOctreeZonePlugin.h>
 #endif
 
 namespace Ogre {

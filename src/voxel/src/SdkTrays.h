@@ -13,10 +13,6 @@
 #include "InputContext.h"
 #include <iomanip>
 
-namespace {
-const std::string BLANKSTRING;
-}
-
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
 // TODO - remove this
 #   pragma warning (disable : 4244)
@@ -1676,8 +1672,8 @@ public:
 	 | Displays specified material on backdrop, or the last material used if
 	 | none specified. Good for pause menus like in the browser.
 	 -----------------------------------------------------------------------------*/
-	void showBackdrop(const Ogre::String& materialName = BLANKSTRING) {
-		if (materialName != BLANKSTRING)
+	void showBackdrop(const Ogre::String& materialName = Ogre::BLANKSTRING) {
+		if (materialName != Ogre::BLANKSTRING)
 			mBackdrop->setMaterialName(materialName);
 		mBackdropLayer->show();
 	}
@@ -1690,8 +1686,8 @@ public:
 	 | Displays specified material on cursor, or the last material used if
 	 | none specified. Used to change cursor type.
 	 -----------------------------------------------------------------------------*/
-	void showCursor(const Ogre::String& materialName = BLANKSTRING) {
-		if (materialName != BLANKSTRING)
+	void showCursor(const Ogre::String& materialName = Ogre::BLANKSTRING) {
+		if (materialName != Ogre::BLANKSTRING)
 			getCursorImage()->setMaterialName(materialName);
 
 		if (!mCursorLayer->isVisible()) {
