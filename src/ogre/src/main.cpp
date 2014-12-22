@@ -1,16 +1,17 @@
 #include <Ogre.h>
 #include <OIS/OIS.h>
+
 static const int WORLD_SIZE = 16;	// We'll change these later for various test worlds
 static const int CHUNK_SIZE = 16;
 
-int m_ChunkID;		        // Used for uniquely naming our chunks
+static int m_ChunkID;		        // Used for uniquely naming our chunks
 
 typedef unsigned char block_t;
 
-block_t* m_Blocks;	        // Holds the block worlds in a [WORLD_SIZE][WORLD_SIZE][WORLD_SIZE] array
+static block_t* m_Blocks;	        // Holds the block worlds in a [WORLD_SIZE][WORLD_SIZE][WORLD_SIZE] array
 
 // Read/write access method for our block world (doesn't check input)
-block_t& GetBlock(const int x, const int y, const int z) {
+static block_t& GetBlock(const int x, const int y, const int z) {
 	return m_Blocks[x + y * WORLD_SIZE + z * WORLD_SIZE * WORLD_SIZE];
 }
 
@@ -96,7 +97,7 @@ static Ogre::ManualObject* createCubeMesh(const Ogre::String& name, const Ogre::
 	return cube;
 }
 
-void initWorldBlocksSphere(void) {
+static void initWorldBlocksSphere(void) {
 	for (int z = 0; z < WORLD_SIZE; ++z) {
 		for (int y = 0; y < WORLD_SIZE; ++y) {
 			for (int x = 0; x < WORLD_SIZE; ++x) {
@@ -109,7 +110,7 @@ void initWorldBlocksSphere(void) {
 	}
 }
 
-void initWorldBlocksRandom(const int Divisor) {
+static void initWorldBlocksRandom(const int Divisor) {
 	srand(12345); // To keep it consistent between runs
 
 	for (int z = 0; z < WORLD_SIZE; ++z) {
@@ -122,10 +123,207 @@ void initWorldBlocksRandom(const int Divisor) {
 
 }
 
-int main() {
+static Ogre::ManualObject* createChunk(const int StartX, const int StartY, const int StartZ) {
+	Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshManChunk" + Ogre::StringConverter::toString(m_ChunkID));
+	MeshChunk->begin("BoxColor");
+
+	int iVertex = 0;
+	block_t Block;
+	block_t Block1;
+
+	for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z) {
+		for (int y = StartY; y < CHUNK_SIZE + StartY; ++y) {
+			for (int x = StartX; x < CHUNK_SIZE + StartX; ++x) {
+				Block = GetBlock(x, y, z);
+				if (Block == 0)
+					continue;
+
+				//x-1
+				Block1 = 0;
+				if (x > StartX)
+					Block1 = GetBlock(x - 1, y, z);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x, y, z + 1);
+					MeshChunk->normal(-1, 0, 0);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x, y + 1, z + 1);
+					MeshChunk->normal(-1, 0, 0);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x, y + 1, z);
+					MeshChunk->normal(-1, 0, 0);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x, y, z);
+					MeshChunk->normal(-1, 0, 0);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+
+				//x+1
+				Block1 = 0;
+				if (x < StartX + CHUNK_SIZE - 1)
+					Block1 = GetBlock(x + 1, y, z);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x + 1, y, z);
+					MeshChunk->normal(1, 0, 0);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x + 1, y + 1, z);
+					MeshChunk->normal(1, 0, 0);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x + 1, y + 1, z + 1);
+					MeshChunk->normal(1, 0, 0);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x + 1, y, z + 1);
+					MeshChunk->normal(1, 0, 0);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+
+				//y-1
+				Block1 = 0;
+				if (y > StartY)
+					Block1 = GetBlock(x, y - 1, z);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x, y, z);
+					MeshChunk->normal(0, -1, 0);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x + 1, y, z);
+					MeshChunk->normal(0, -1, 0);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x + 1, y, z + 1);
+					MeshChunk->normal(0, -1, 0);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x, y, z + 1);
+					MeshChunk->normal(0, -1, 0);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+
+				//y+1
+				Block1 = 0;
+				if (y < StartY + CHUNK_SIZE - 1)
+					Block1 = GetBlock(x, y + 1, z);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x, y + 1, z + 1);
+					MeshChunk->normal(0, 1, 0);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x + 1, y + 1, z + 1);
+					MeshChunk->normal(0, 1, 0);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x + 1, y + 1, z);
+					MeshChunk->normal(0, 1, 0);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x, y + 1, z);
+					MeshChunk->normal(0, 1, 0);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+
+				//z-1
+				Block1 = 0;
+				if (z > StartZ)
+					Block1 = GetBlock(x, y, z - 1);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x, y + 1, z);
+					MeshChunk->normal(0, 0, -1);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x + 1, y + 1, z);
+					MeshChunk->normal(0, 0, -1);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x + 1, y, z);
+					MeshChunk->normal(0, 0, -1);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x, y, z);
+					MeshChunk->normal(0, 0, -1);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+
+				//z+1
+				Block1 = 0;
+				if (z < StartZ + CHUNK_SIZE - 1)
+					Block1 = GetBlock(x, y, z + 1);
+
+				if (Block1 == 0) {
+					MeshChunk->position(x, y, z + 1);
+					MeshChunk->normal(0, 0, 1);
+					MeshChunk->textureCoord(0, 1);
+					MeshChunk->position(x + 1, y, z + 1);
+					MeshChunk->normal(0, 0, 1);
+					MeshChunk->textureCoord(1, 1);
+					MeshChunk->position(x + 1, y + 1, z + 1);
+					MeshChunk->normal(0, 0, 1);
+					MeshChunk->textureCoord(1, 0);
+					MeshChunk->position(x, y + 1, z + 1);
+					MeshChunk->normal(0, 0, 1);
+					MeshChunk->textureCoord(0, 0);
+
+					MeshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
+					MeshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+
+					iVertex += 4;
+				}
+			}
+		}
+	}
+
+	MeshChunk->end();
+
+	++m_ChunkID;
+
+	return MeshChunk;
+}
+
+static void createWorldChunks(Ogre::SceneManager* smgr) {
+	//std::vector<int> VertexArray;
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
+	Ogre::Technique* tech = mat->getTechnique(0);
+	Ogre::Pass* pass = tech->getPass(0);
+	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
+	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
+
+	//Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshManChunk");
+	//MeshChunk->begin("BoxColor");
+
+	for (int z = 0; z < WORLD_SIZE; z += CHUNK_SIZE) {
+		for (int y = 0; y < WORLD_SIZE; y += CHUNK_SIZE) {
+			for (int x = 0; x < WORLD_SIZE; x += CHUNK_SIZE) {
+				Ogre::ManualObject* MeshChunk = createChunk(x, y, z);
+				smgr->getRootSceneNode()->createChildSceneNode()->attachObject(MeshChunk);
+			}
+		}
+	}
+
+}
+
+int main(int argc, char *argv[]) {
 	Ogre::Root* root = new Ogre::Root("plugins.cfg", "ogre.cfg", "Ogre.log");
 
-	if (!root->showConfigDialog())
+	if (!root->restoreConfig() && !root->showConfigDialog())
 		return -1;
 
 	Ogre::ConfigFile cf;
@@ -153,29 +351,19 @@ int main() {
 	Ogre::RenderWindow* window = root->initialise(true);
 	Ogre::SceneManager* smgr = root->createSceneManager(Ogre::ST_GENERIC);
 
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
-	Ogre::Technique* tech = mat->getTechnique(0);
-	Ogre::Pass* pass = tech->getPass(0);
-	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
+	createWorldChunks(smgr);
 
-	Ogre::ManualObject* testBox = createCubeMesh("TestBox1", "BoxColor");
-	Ogre::SceneNode* headNode = smgr->getRootSceneNode()->createChildSceneNode();
-	Ogre::MeshPtr Mesh = testBox->convertToMesh("TestBox2");
-	Ogre::StaticGeometry* pGeom = new Ogre::StaticGeometry(smgr, "Boxes");
-	Ogre::Entity* pEnt = smgr->createEntity("TestBox2");
+	Ogre::Camera* mCamera = smgr->createCamera("MainCamera");
+	Ogre::Viewport* mViewport = window->addViewport(mCamera);
 
-	pGeom->setRegionDimensions(Ogre::Vector3(300, 300, 300));
+	// Position it at 500 in Z direction
+	mCamera->setPosition(Ogre::Vector3(0, 0, 80));
+	// Look back along -Z
+	mCamera->lookAt(Ogre::Vector3(0, 0, -300));
+	mCamera->setNearClipDistance(5);
 
-	for (int z = 0; z < 10; ++z) {
-		for (int y = 0; y < 256; ++y) {
-			for (int x = 0; x < 256; ++x) {
-				pGeom->addEntity(pEnt, Ogre::Vector3(x, y, z));
-			}
-		}
-	}
-
-	pGeom->build();
+	mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
+	mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
 	smgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
 	Ogre::Light* l = smgr->createLight("MainLight");
@@ -203,6 +391,7 @@ int main() {
 	im->destroyInputSystem(im);
 	im = 0;
 
+	delete[] m_Blocks;
 	delete root;
 	return 0;
 }
