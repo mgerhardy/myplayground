@@ -26,6 +26,9 @@ private:
 	void initWorldBlocksRandom(const int Divisor);
 	void initWorldBlocksSphere();
 
+	void createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename);
+	void createSolidTexture(const Ogre::String& pName);
+
 	// Displays the world using our original "naive" method
 	void displaySimpleWorld();
 public:

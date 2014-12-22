@@ -187,6 +187,26 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 	++m_ChunkID;
 }
 
+void TestBlockLandApplication::createSolidTexture(const Ogre::String& pName) {
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
+	Ogre::Technique* tech = mat->getTechnique(0);
+	Ogre::Pass* pass = tech->getPass(0);
+	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
+	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
+}
+
+void TestBlockLandApplication::createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename) {
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
+	Ogre::Technique* tech = mat->getTechnique(0);
+	Ogre::Pass* pass = tech->getPass(0);
+	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
+
+	tex->setTextureName(pImageFilename);
+	tex->setNumMipmaps(4);
+	tex->setTextureAnisotropy(1);
+	tex->setTextureFiltering(Ogre::FO_POINT, Ogre::FO_POINT, Ogre::FO_POINT);
+}
+
 void TestBlockLandApplication::createWorldChunks() {
 	//std::vector<int> VertexArray;
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
@@ -236,7 +256,16 @@ void TestBlockLandApplication::displaySimpleWorld() {
 }
 
 void TestBlockLandApplication::createScene() {
-	displaySimpleWorld();
+	mSceneMgr->setSkyDome(true, "Examples/CloudySky", 2, 8, 100);
+	mSceneMgr->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(0.8, 0.8, 1), 0.05, 0.0, 200);
+
+	mCamera->setFarClipDistance(256);
+	mCamera->setNearClipDistance(0.01);
+
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
+	Ogre::Light* l = mSceneMgr->createLight("MainLight");
+	l->setPosition(20, 80, 50);
+
 	createWorldChunks();
 }
 
