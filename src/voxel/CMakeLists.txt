@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 PROJECT(test)
 
-set(CMAKE_MODULE_PATH /usr/share/OGRE/cmake/modules /usr/local/lib/OGRE/cmake)
+set(CMAKE_MODULE_PATH /usr/lib/OGRE/cmake /usr/share/OGRE/cmake/modules /usr/local/lib/OGRE/cmake)
 #set(OGRE_STATIC TRUE)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 FIND_PACKAGE(OGRE)
 FIND_PACKAGE(OIS)
 
-INCLUDE_DIRECTORIES(${OGRE_Overlay_INCLUDE_DIRS} ${OGRE_INCLUDE_DIRS} ${OIS_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${OIS_INCLUDE_DIRS} ${OGRE_INCLUDE_DIRS} ${OGRE_Overlay_INCLUDE_DIRS})
 
 FILE(GLOB SRCS src/*.cpp src/*.h)
 
