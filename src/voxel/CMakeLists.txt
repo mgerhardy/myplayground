@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 PROJECT(test)
 
 set(CMAKE_MODULE_PATH /usr/lib/OGRE/cmake /usr/share/OGRE/cmake/modules /usr/local/lib/OGRE/cmake)
-set(OGRE_STATIC TRUE)
+#set(OGRE_STATIC TRUE)
 
 if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

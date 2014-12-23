@@ -3,7 +3,7 @@
 #include <OIS/OIS.h>
 
 TestBlockLandApplication::TestBlockLandApplication() {
-	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE + 16000];
+	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE];
 	memset(m_Blocks, 0, sizeof(block_t) * WORLD_SIZE * WORLD_SIZE * WORLD_SIZE);
 	initWorldBlocksSphere();
 	m_ChunkID = 1;
