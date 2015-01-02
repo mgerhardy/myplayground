@@ -1,6 +1,7 @@
 #include "TestBlockLandApplication.h"
 #include <Ogre.h>
 #include <OIS/OIS.h>
+#include <iostream>
 
 TestBlockLandApplication::TestBlockLandApplication() {
 	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE];
