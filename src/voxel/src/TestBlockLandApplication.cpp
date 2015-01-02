@@ -6,7 +6,6 @@
 TestBlockLandApplication::TestBlockLandApplication() {
 	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE];
 	memset(m_Blocks, 0, sizeof(block_t) * WORLD_SIZE * WORLD_SIZE * WORLD_SIZE);
-	initWorldBlocksSphere();
 	m_ChunkID = 1;
 }
 
@@ -235,6 +234,8 @@ void TestBlockLandApplication::createScene() {
 	Ogre::Light* l = mSceneMgr->createLight("MainLight");
 	l->setPosition(20, 80, 50);
 
+	initWorldBlocksSphere();
+
 	createWorldChunks();
 }
 
@@ -247,8 +248,8 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 	for (int z = 0; z < WORLD_SIZE; ++z) {
 		for (int x = 0; x < WORLD_SIZE; ++x) {
 			const Ogre::ColourValue& color = heightMap.getColourAt(x, z, 0);
-			const int Height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * WORLD_SIZE / 4.0f + WORLD_SIZE / 2.0f);
-			for (int y = 0; y < Height; ++y) {
+			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * WORLD_SIZE / 4.0f + WORLD_SIZE / 2.0f);
+			for (int y = 0; y < height; ++y) {
 				GetBlock(x, y, z) = 1;
 			}
 		}
