@@ -243,6 +243,7 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 	Ogre::Image heightMap;
 	heightMap.load("heightmap.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	const Ogre::PixelBox& pb = heightMap.getPixelBox();
+	// TODO: segfault
 	heightMap.scale(pb, Ogre::PixelBox(WORLD_SIZE, WORLD_SIZE, pb.getDepth(), Ogre::PF_BYTE_RGB));
 
 	for (int z = 0; z < WORLD_SIZE; ++z) {
