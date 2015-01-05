@@ -225,8 +225,8 @@ Ogre::MaterialPtr TestBlockLandApplication::createTexture(const Ogre::String& pN
 
 void TestBlockLandApplication::createWorldChunks() {
 	for (int z = 0; z < WORLD_SIZE; z += CHUNK_SIZE) {
-		for (int y = 0; y < WORLD_SIZE; y += CHUNK_SIZE) {
-			for (int x = 0; x < WORLD_SIZE; x += CHUNK_SIZE) {
+		for (int y = 0; y < WORLD_HEIGHT; y += CHUNK_SIZE) {
+			for (int x = 0; x < WORLD_WIDTH; x += CHUNK_SIZE) {
 				createChunk(x, y, z);
 			}
 		}
