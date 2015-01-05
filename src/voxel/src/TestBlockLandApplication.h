@@ -4,6 +4,12 @@
 
 typedef unsigned char block_t;
 
+struct blockinfo_t {
+	block_t ID;
+	char Name[64];
+	Ogre::ColourValue Color;
+};
+
 class TestBlockLandApplication: public BaseApplication {
 private:
 	static const int WORLD_SIZE = 256;
@@ -27,7 +33,7 @@ private:
 	void initWorldBlocksSphere();
 
 	Ogre::MaterialPtr createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename);
-	Ogre::MaterialPtr createSolidTexture(const Ogre::String& pName);
+	Ogre::MaterialPtr createSolidTexture(const Ogre::String& pName, const Ogre::ColourValue& color);
 public:
 	TestBlockLandApplication();
 	virtual ~TestBlockLandApplication();
