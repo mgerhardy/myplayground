@@ -4,8 +4,6 @@
 #include <iostream>
 
 TestBlockLandApplication::TestBlockLandApplication() {
-	m_Blocks = new block_t[WORLD_SIZE * WORLD_SIZE * WORLD_SIZE];
-	memset(m_Blocks, 0, sizeof(block_t) * WORLD_SIZE * WORLD_SIZE * WORLD_SIZE);
 	m_ChunkID = 1;
 }
 
@@ -187,16 +185,17 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 	++m_ChunkID;
 }
 
-void TestBlockLandApplication::createSolidTexture(const Ogre::String& pName) {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
+Ogre::MaterialPtr TestBlockLandApplication::createSolidTexture(const Ogre::String& pName) {
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General", true);
 	Ogre::Technique* tech = mat->getTechnique(0);
 	Ogre::Pass* pass = tech->getPass(0);
 	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
 	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
+	return mat;
 }
 
-void TestBlockLandApplication::createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename) {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
+Ogre::MaterialPtr TestBlockLandApplication::createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename) {
+	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General", true);
 	Ogre::Technique* tech = mat->getTechnique(0);
 	Ogre::Pass* pass = tech->getPass(0);
 	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
@@ -205,14 +204,11 @@ void TestBlockLandApplication::createTexture(const Ogre::String& pName, const Og
 	tex->setNumMipmaps(4);
 	tex->setTextureAnisotropy(1);
 	tex->setTextureFiltering(Ogre::FO_POINT, Ogre::FO_POINT, Ogre::FO_POINT);
+	return mat;
 }
 
 void TestBlockLandApplication::createWorldChunks() {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create("BoxColor", "General", true);
-	Ogre::Technique* tech = mat->getTechnique(0);
-	Ogre::Pass* pass = tech->getPass(0);
-	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, Ogre::ColourValue(0, 0.5, 0));
+	Ogre::MaterialPtr mat = createSolidTexture("BoxColor");
 
 	for (int z = 0; z < WORLD_SIZE; z += CHUNK_SIZE) {
 		for (int y = 0; y < WORLD_SIZE; y += CHUNK_SIZE) {
@@ -243,14 +239,16 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 	Ogre::Image heightMap;
 	heightMap.load("heightmap.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	const Ogre::PixelBox& pb = heightMap.getPixelBox();
-	// TODO: segfault
-	heightMap.scale(pb, Ogre::PixelBox(WORLD_SIZE, WORLD_SIZE, pb.getDepth(), Ogre::PF_BYTE_RGB));
+	WORLD_WIDTH = pb.getWidth();
+	WORLD_HEIGHT = pb.getHeight();
+	m_Blocks = new block_t[WORLD_HEIGHT * WORLD_WIDTH * WORLD_SIZE];
+	memset(m_Blocks, 0, sizeof(block_t) * WORLD_HEIGHT * WORLD_WIDTH * WORLD_SIZE);
 
-	for (int z = 0; z < WORLD_SIZE; ++z) {
-		for (int x = 0; x < WORLD_SIZE; ++x) {
-			const Ogre::ColourValue& color = heightMap.getColourAt(x, z, 0);
+	for (int y = 0; y < WORLD_HEIGHT; ++y) {
+		for (int x = 0; x < WORLD_WIDTH; ++x) {
+			const Ogre::ColourValue& color = heightMap.getColourAt(x, y, 0);
 			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * WORLD_SIZE / 4.0f + WORLD_SIZE / 2.0f);
-			for (int y = 0; y < height; ++y) {
+			for (int z = 0; z < height; ++z) {
 				GetBlock(x, y, z) = 1;
 			}
 		}

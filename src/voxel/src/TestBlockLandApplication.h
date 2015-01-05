@@ -6,7 +6,9 @@ typedef unsigned char block_t;
 
 class TestBlockLandApplication: public BaseApplication {
 private:
-	static const int WORLD_SIZE = 16;	// We'll change these later for various test worlds
+	static const int WORLD_SIZE = 256;
+	int WORLD_WIDTH;
+	int WORLD_HEIGHT;
 	static const int CHUNK_SIZE = 16;
 
 	int m_ChunkID;		        // Used for uniquely naming our chunks
@@ -15,7 +17,7 @@ private:
 
 	// Read/write access method for our block world (doesn't check input)
 	inline block_t& GetBlock(const int x, const int y, const int z) const {
-		return m_Blocks[x + y * WORLD_SIZE + z * WORLD_SIZE * WORLD_SIZE];
+		return m_Blocks[x + y * WORLD_WIDTH + z * WORLD_HEIGHT * WORLD_WIDTH];
 	}
 
 	void createChunk(const int StartX, const int StartY, const int StartZ);
@@ -24,8 +26,8 @@ private:
 	// Used for filling our block world
 	void initWorldBlocksSphere();
 
-	void createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename);
-	void createSolidTexture(const Ogre::String& pName);
+	Ogre::MaterialPtr createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename);
+	Ogre::MaterialPtr createSolidTexture(const Ogre::String& pName);
 public:
 	TestBlockLandApplication();
 	virtual ~TestBlockLandApplication();
