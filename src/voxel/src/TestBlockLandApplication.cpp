@@ -531,7 +531,7 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 	_blockVertexCount = new int[_worldYSize * _worldXSize * _worldHeight];
 	memset(_blocks, 0, sizeof(Block) * _worldYSize * _worldXSize * _worldHeight);
 	memset(_blockVertexCount, 0, sizeof(int) * _worldYSize * _worldXSize * _worldHeight);
-	memset(_blockVertexCount, 0, sizeof(Ogre::ManualObject*) * _worldYSize * _worldXSize * _worldHeight);
+	memset(_blockChunkObjects, 0, sizeof(Ogre::ManualObject*) * _worldYSize * _worldXSize * _worldHeight);
 
 	for (int y = 0; y < _worldYSize; ++y) {
 		for (int x = 0; x < _worldXSize; ++x) {
