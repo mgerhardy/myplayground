@@ -443,7 +443,8 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
 			const Ogre::ColourValue& color = heightMap.getColourAt(x, z, 0);
-			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * _worldHeight / 4.0f + _worldHeight / 2.0f);
+			//TODO: scale into world height
+			const int height = static_cast<int>(((color.r + color.g + color.b) / 3.0f) * 256.0f);
 			for (int y = 0; y < height; ++y) {
 				assert(height < _worldHeight);
 				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max)) - static_cast<int>(BlockType::Grass)) + static_cast<int>(BlockType::Grass));
