@@ -61,54 +61,55 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 
 #if 0
 void TestBlockLandApplication::initWorldBlocksLayers() {
-	int HeightMap[_worldXSize][_worldZSize];
+	int heightMap[_worldXSize][_worldZSize];
 	infland::CLandscape LayerMaps[10];  //Hard coded because I'm lazy!
-	int NumLayerMaps = 0;
-	int BaseSeed;
+	int numLayerMaps = 0;
+	int baseSeed;
 
 	m_Landscape.SetSize(_worldXSize, _worldZSize);
 	m_Landscape.CreateAltitude();
-	BaseSeed = m_Landscape.GetSeed();
+	baseSeed = m_Landscape.GetSeed();
 
-	infland::CMap& Map = m_Landscape.GetAltitudeMap();
+	infland::CMap& map = m_Landscape.GetAltitudeMap();
 
 	//Initialize our temporary height map array
 	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
-			float Height = Map.GetValue(x, z) * _worldHeight / 4 + _worldHeight / 2;
-			HeightMap[x][z] = Height;
+			const float height = map.GetValue(x, z);
+			heightMap[x][z] = height;
 		}
 	}
 
 	//Create height maps for each layer
-	for (int i = 0; LAYERS[i].BlockID != BLOCK_NULL && i < 10; ++i) {
+	const int length = lengthof(LAYERS);
+	for (int i = 0; i < length; ++i) {
 		LayerMaps[i].SetSeed(BaseSeed + LAYERS[i].SeedOffset);
 		LayerMaps[i].SetSize(_worldXSize, _worldZSize);
 		LayerMaps[i].CreateAltitude();
-		++NumLayerMaps;
+		++numLayerMaps;
 	}
 
-	int Layer = 0;
+	int layer = 0;
 
 	// Fill in the blocks from all layers
-	for (int layer = 0; layer < NumLayerMaps; ++layer) {
+	for (int layer = 0; layer < numLayerMaps; ++layer) {
 		infland::CMap & Map = LayerMaps[layer].GetAltitudeMap();
 
 		for (int z = 0; z < _worldZSize; ++z) {
 			for (int x = 0; x < _worldXSize; ++x) {
 				if (HeightMap[x][z] <= 0)
-				continue;
-				int Height = (Map.GetValue(x, z) + 1) / 2.0f * (LAYERS[layer].MaxLevel - LAYERS[layer].MinLevel) + LAYERS[layer].MinLevel;
+					continue;
+				int height = (Map.GetValue(x, z) + 1) / 2.0f * (LAYERS[layer].maxLevel - LAYERS[layer].minLevel) + LAYERS[layer].minLevel;
 
 				//Don't fill the map below 0 height
-				if (HeightMap[x][z] - Height < 0)
-					Height = HeightMap[x][z];
-				HeightMap[x][z] -= Height;
+				if (HeightMap[x][z] - height < 0.0f)
+					height = HeightMap[x][z];
+				HeightMap[x][z] -= height;
 
-				int MaxHeight = HeightMap[x][z] + Height;
+				int maxHeight = HeightMap[x][z] + height;
 
-				for (int y = HeightMap[x][z]; y <= MaxHeight; ++y) {
-					getBlock(x, y, z).type = LAYERS[layer].BlockID;
+				for (int y = HeightMap[x][z]; y <= maxHeight; ++y) {
+					getBlock(x, y, z).type = LAYERS[layer].blockType;
 				}
 			}
 		}
