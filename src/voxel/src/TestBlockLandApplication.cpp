@@ -139,7 +139,7 @@ void TestBlockLandApplication::initWorldBlocksLight() {
 
 void TestBlockLandApplication::createChunk(const int startX, const int startY, const int startZ) {
 	Ogre::ManualObject* meshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
-
+	meshChunk->begin("BaseWhiteNoLighting");
 	/* Only create visible faces of chunk */
 	const BlockType defaultBlock = BlockType::Grass;
 	const int sx = 0;
@@ -147,76 +147,72 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 	const int sz = 0;
 
 	int vertexIndex = 0;
-	const int length = lengthof(BLOCKINFO);
-	for (int i = 1; i < length; ++i) {
-		const BlockType type = BLOCKINFO[i].type;
-		meshChunk->begin(BLOCKINFO[i].name);
-		vertexIndex = 0;
 
-		for (int z = startZ; z < CHUNK_SIZE + startZ; ++z) {
-			for (int y = startY; y < CHUNK_SIZE + startY; ++y) {
-				for (int x = startX; x < CHUNK_SIZE + startX; ++x) {
-					if (getBlock(x, y, z).type != type)
-						continue;
+	for (int z = startZ; z < CHUNK_SIZE + startZ; ++z) {
+		for (int y = startY; y < CHUNK_SIZE + startY; ++y) {
+			for (int x = startX; x < CHUNK_SIZE + startX; ++x) {
+				const BlockType type = getBlock(x, y, z).type;
+				if (type == BlockType::Air)
+					continue;
 
-					BlockType blockType = defaultBlock;
-					if (x > sx)
-						blockType = getBlock(x - 1, y, z).type;
+				BlockType blockType = defaultBlock;
+				if (x > sx)
+					blockType = getBlock(x - 1, y, z).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(-1, 0, 0);
-						mesh(meshChunk, normal, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
-					}
+				const Ogre::ColourValue& color = BLOCKINFO[static_cast<int>(type)].color;
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(-1, 0, 0);
+					mesh(meshChunk, normal, color, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
+				}
 
-					blockType = defaultBlock;
-					if (x < sx + _worldXSize - 1)
-						blockType = getBlock(x + 1, y, z).type;
+				blockType = defaultBlock;
+				if (x < sx + _worldXSize - 1)
+					blockType = getBlock(x + 1, y, z).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(1, 0, 0);
-						mesh(meshChunk, normal, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
-					}
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(1, 0, 0);
+					mesh(meshChunk, normal, color, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
+				}
 
-					blockType = defaultBlock;
-					if (y > sy)
-						blockType = getBlock(x, y - 1, z).type;
+				blockType = defaultBlock;
+				if (y > sy)
+					blockType = getBlock(x, y - 1, z).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(0, -1, 0);
-						mesh(meshChunk, normal, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
-					}
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(0, -1, 0);
+					mesh(meshChunk, normal, color, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
+				}
 
-					blockType = defaultBlock;
-					if (y < sy + _worldHeight - 1)
-						blockType = getBlock(x, y + 1, z).type;
+				blockType = defaultBlock;
+				if (y < sy + _worldHeight - 1)
+					blockType = getBlock(x, y + 1, z).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(0, 1, 0);
-						mesh(meshChunk, normal, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
-					}
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(0, 1, 0);
+					mesh(meshChunk, normal, color, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
+				}
 
-					blockType = defaultBlock;
-					if (z > sz)
-						blockType = getBlock(x, y, z - 1).type;
+				blockType = defaultBlock;
+				if (z > sz)
+					blockType = getBlock(x, y, z - 1).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(0, 0, -1);
-						mesh(meshChunk, normal, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
-					}
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(0, 0, -1);
+					mesh(meshChunk, normal, color, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
+				}
 
-					blockType = defaultBlock;
-					if (z < sz + _worldZSize - 1)
-						blockType = getBlock(x, y, z + 1).type;
+				blockType = defaultBlock;
+				if (z < sz + _worldZSize - 1)
+					blockType = getBlock(x, y, z + 1).type;
 
-					if (blockType == BlockType::Air) {
-						const Ogre::Vector3 normal(0, 0, 1);
-						mesh(meshChunk, normal, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
-					}
+				if (blockType == BlockType::Air) {
+					const Ogre::Vector3 normal(0, 0, 1);
+					mesh(meshChunk, normal, color, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
 				}
 			}
 		}
-		meshChunk->end();
 	}
+	meshChunk->end();
 
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
 
