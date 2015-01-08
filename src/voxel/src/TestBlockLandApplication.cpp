@@ -476,7 +476,7 @@ void TestBlockLandApplication::createScene() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** done ***");
 }
 
-void TestBlockLandApplication::computeWorldLightValues(const float WorldTime) {
+void TestBlockLandApplication::computeWorldLightValues(const float worldTime) {
 	//6am = SunRise
 	//Light is symmetric about noon
 	//4am-8am = dawn
@@ -484,32 +484,32 @@ void TestBlockLandApplication::computeWorldLightValues(const float WorldTime) {
 	//6am color = (1, 0.6, 0.04)
 	//8am color = (1, 1, 1)
 
-	float BaseWorldTime = std::fmod(WorldTime, 24);
+	float baseWorldTime = std::fmod(worldTime, 24);
 
-	_lightAngle = BaseWorldTime / 24.0f * 360.0f - 90.0f;
+	_lightAngle = baseWorldTime / 24.0f * 360.0f - 90.0f;
 	if (_lightAngle < 0)
 		_lightAngle += 360.0f;
 
-	if (BaseWorldTime <= 4 || BaseWorldTime >= 20) {
+	if (baseWorldTime <= 4 || baseWorldTime >= 20) {
 		_lightColor = Ogre::ColourValue(0.1f, 0.1f, 0.1f);
-	} else if (BaseWorldTime >= 8 && BaseWorldTime <= 16) {
+	} else if (baseWorldTime >= 8 && baseWorldTime <= 16) {
 		_lightColor = Ogre::ColourValue(1, 1, 1);
-	} else if (BaseWorldTime >= 4 && BaseWorldTime <= 6) {
-		_lightColor.r = (BaseWorldTime - 4.0f) / 2.0f * 0.9f + 0.1f;
-		_lightColor.g = (BaseWorldTime - 4.0f) / 2.0f * 0.5f + 0.1f;
-		_lightColor.b = (BaseWorldTime - 4.0f) / 2.0f * -0.06f + 0.1f;
-	} else if (BaseWorldTime >= 6 && BaseWorldTime <= 8) {
+	} else if (baseWorldTime >= 4 && baseWorldTime <= 6) {
+		_lightColor.r = (baseWorldTime - 4.0f) / 2.0f * 0.9f + 0.1f;
+		_lightColor.g = (baseWorldTime - 4.0f) / 2.0f * 0.5f + 0.1f;
+		_lightColor.b = (baseWorldTime - 4.0f) / 2.0f * -0.06f + 0.1f;
+	} else if (baseWorldTime >= 6 && baseWorldTime <= 8) {
 		_lightColor.r = 1.0f;
-		_lightColor.g = (BaseWorldTime - 6.0f) / 2.0f * 0.4f + 0.6f;
-		_lightColor.b = (BaseWorldTime - 6.0f) / 2.0f * 0.96f + 0.04f;
-	} else if (BaseWorldTime >= 16 && BaseWorldTime <= 18) {
+		_lightColor.g = (baseWorldTime - 6.0f) / 2.0f * 0.4f + 0.6f;
+		_lightColor.b = (baseWorldTime - 6.0f) / 2.0f * 0.96f + 0.04f;
+	} else if (baseWorldTime >= 16 && baseWorldTime <= 18) {
 		_lightColor.r = 1.0f;
-		_lightColor.g = (18.0f - BaseWorldTime) / 2.0f * 0.4f + 0.6f;
-		_lightColor.b = (18.0f - BaseWorldTime) / 2.0f * 0.96f + 0.04f;
-	} else if (BaseWorldTime >= 18 && BaseWorldTime <= 20) {
-		_lightColor.r = (20.0f - BaseWorldTime) / 2.0f * 0.9f + 0.1f;
-		_lightColor.g = (20.0f - BaseWorldTime) / 2.0f * 0.5f + 0.1f;
-		_lightColor.b = (20.0f - BaseWorldTime) / 2.0f * -0.06f + 0.1f;
+		_lightColor.g = (18.0f - baseWorldTime) / 2.0f * 0.4f + 0.6f;
+		_lightColor.b = (18.0f - baseWorldTime) / 2.0f * 0.96f + 0.04f;
+	} else if (baseWorldTime >= 18 && baseWorldTime <= 20) {
+		_lightColor.r = (20.0f - baseWorldTime) / 2.0f * 0.9f + 0.1f;
+		_lightColor.g = (20.0f - baseWorldTime) / 2.0f * 0.5f + 0.1f;
+		_lightColor.b = (20.0f - baseWorldTime) / 2.0f * -0.06f + 0.1f;
 	} else	//Shouldn't get here
 	{
 		_lightColor = Ogre::ColourValue(1, 1, 1);
@@ -522,7 +522,7 @@ void TestBlockLandApplication::computeWorldLightValues(const float WorldTime) {
 void TestBlockLandApplication::initWorldBlocksSphere() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksSphere: create textures ***");
 	const int length = lengthof(BLOCKINFO);
-	for (int i = 0; i < length; ++i) {
+	for (int i = 1; i < length; ++i) {
 		const BlockInfo& info = BLOCKINFO[i];
 		createSolidTexture(info.name, info.color);
 	}
@@ -548,7 +548,7 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 			const Ogre::ColourValue& color = heightMap.getColourAt(x, y, 0);
 			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * _worldHeight / 4.0f + _worldHeight / 2.0f);
 			for (int z = 0; z < height; ++z) {
-				getBlock(x, y, z).type = static_cast<BlockType>((rand() % static_cast<int>(BlockType::Max)) + static_cast<int>(BlockType::Grass));
+				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max)) - static_cast<int>(BlockType::Grass)) + static_cast<int>(BlockType::Grass));
 			}
 		}
 	}
