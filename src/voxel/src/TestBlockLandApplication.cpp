@@ -447,7 +447,7 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 			const int height = static_cast<int>(((color.r + color.g + color.b) / 3.0f) * 256.0f);
 			for (int y = 0; y < height; ++y) {
 				assert(height < _worldHeight);
-				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max)) - static_cast<int>(BlockType::Grass)) + static_cast<int>(BlockType::Grass));
+				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max) - static_cast<int>(BlockType::Grass))) + static_cast<int>(BlockType::Grass));
 			}
 		}
 	}
