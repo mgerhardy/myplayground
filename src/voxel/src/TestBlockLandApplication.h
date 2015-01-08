@@ -49,27 +49,28 @@ private:
 	// Stores the mesh object for each chunk
 	Ogre::ManualObject** _blockChunkObjects;
 
-	// Read/write access method (doesn't check input)
-	inline Ogre::ManualObject*& getBlockChunkObject(const int x, const int y, const int z) const {
-		return _blockChunkObjects[x + y * _worldXSize + z * _worldYSize * _worldXSize];
-	}
-
 	// The number of vertices in each mesh chunk
 	int *_blockVertexCount;
-
-	// Read/write access method for our block world (doesn't check input)
-	inline Block& getBlock(const int x, const int y, const int z) const {
-		return _blocks[x + y * _worldXSize + z * _worldYSize * _worldXSize];
-	}
-
-	// Read/write access method (doesn't check input)
-	inline int& getBlockVertexCount(const int x, const int y, const int z) const {
-		return _blockVertexCount[x + y * _worldXSize + z * _worldYSize * _worldXSize];
-	}
 
 	inline LightValue& getBlockLight(const int x, const int y, const int z) const {
 		return getBlock(x, y, z).light;
 	}
+
+#define IDX(x, y, z) x + y * _worldXSize + z * _worldYSize * _worldXSize
+	// Read/write access method (doesn't check input)
+	inline Ogre::ManualObject*& getBlockChunkObject(const int x, const int y, const int z) const {
+		return _blockChunkObjects[IDX(x, y, z)];
+	}
+	// Read/write access method for our block world (doesn't check input)
+	inline Block& getBlock(const int x, const int y, const int z) const {
+		return _blocks[IDX(x, y, z)];
+	}
+
+	// Read/write access method (doesn't check input)
+	inline int& getBlockVertexCount(const int x, const int y, const int z) const {
+		return _blockVertexCount[IDX(x, y, z)];
+	}
+#undef IDX
 
 	void initWorldBlocksLight();
 	void createChunk(const int StartX, const int StartY, const int StartZ);

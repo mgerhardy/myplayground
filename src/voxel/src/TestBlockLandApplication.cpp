@@ -165,17 +165,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x - 1, y, z).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(-1, 0, 0);
 						meshChunk->position(x, y, z + 1);
-						meshChunk->normal(-1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x, y + 1, z + 1);
-						meshChunk->normal(-1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x, y + 1, z);
-						meshChunk->normal(-1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x, y, z);
-						meshChunk->normal(-1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
@@ -189,17 +190,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x + 1, y, z).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(1, 0, 0);
 						meshChunk->position(x + 1, y, z);
-						meshChunk->normal(1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x + 1, y + 1, z);
-						meshChunk->normal(1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x + 1, y + 1, z + 1);
-						meshChunk->normal(1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x + 1, y, z + 1);
-						meshChunk->normal(1, 0, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
@@ -213,17 +215,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x, y - 1, z).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(0, -1, 0);
 						meshChunk->position(x, y, z);
-						meshChunk->normal(0, -1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x + 1, y, z);
-						meshChunk->normal(0, -1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x + 1, y, z + 1);
-						meshChunk->normal(0, -1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x, y, z + 1);
-						meshChunk->normal(0, -1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
@@ -237,17 +240,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x, y + 1, z).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(0, 1, 0);
 						meshChunk->position(x, y + 1, z + 1);
-						meshChunk->normal(0, 1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x + 1, y + 1, z + 1);
-						meshChunk->normal(0, 1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x + 1, y + 1, z);
-						meshChunk->normal(0, 1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x, y + 1, z);
-						meshChunk->normal(0, 1, 0);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
@@ -261,17 +265,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x, y, z - 1).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(0, 0, -1);
 						meshChunk->position(x, y + 1, z);
-						meshChunk->normal(0, 0, -1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x + 1, y + 1, z);
-						meshChunk->normal(0, 0, -1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x + 1, y, z);
-						meshChunk->normal(0, 0, -1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x, y, z);
-						meshChunk->normal(0, 0, -1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
@@ -285,17 +290,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						blockType = getBlock(x, y, z + 1).type;
 
 					if (blockType == BlockType::Air) {
+						const Ogre::Vector3 normal(0, 0, 1);
 						meshChunk->position(x, y, z + 1);
-						meshChunk->normal(0, 0, 1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 1);
 						meshChunk->position(x + 1, y, z + 1);
-						meshChunk->normal(0, 0, 1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 1);
 						meshChunk->position(x + 1, y + 1, z + 1);
-						meshChunk->normal(0, 0, 1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(1, 0);
 						meshChunk->position(x, y + 1, z + 1);
-						meshChunk->normal(0, 0, 1);
+						meshChunk->normal(normal);
 						meshChunk->textureCoord(0, 0);
 
 						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
