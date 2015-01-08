@@ -26,7 +26,7 @@ const Layer LAYERS[] = {
 #define lengthof(x) (sizeof(x) / sizeof(*(x)))
 
 TestBlockLandApplication::TestBlockLandApplication() :
-		_worldXSize(-1), _worldYSize(-1), _chunkID(1), _blocks(nullptr), _lightAngle(90), _worldTime(0.0f), _updateChunkX(0), _updateChunkY(0), _updateChunkZ(0), _updateChunksCount(
+		_worldXSize(-1), _worldZSize(-1), _chunkID(1), _blocks(nullptr), _lightAngle(90), _worldTime(0.0f), _updateChunkX(0), _updateChunkY(0), _updateChunkZ(0), _updateChunksCount(
 				0), _blockChunkObjects(nullptr), _lightColor(Ogre::ColourValue(1, 1, 1)), _fogColor(_lightColor * 0.8f), _ambientColor(_lightColor / 3.0f), _blockVertexCount(
 				nullptr) {
 }
@@ -48,8 +48,8 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 	NoiseSource.SetOctaveCount(4);
 
 	float nx, ny, nz;
-	for (int y = 0, ny = 0.0f; y < _worldYSize; ++y, ny += delta) {
-		for (int z = 0, nz = 0.0f; z < _worldHeight; ++z, nz += delta) {
+	for (int y = 0, ny = 0.0f; y < _worldHeight; ++y, ny += delta) {
+		for (int z = 0, nz = 0.0f; z < _worldZSize; ++z, nz += delta) {
 			for (int x = 0, nx = 0.0f; x < _worldXSize; ++x, nx += delta) {
 				const float value = NoiseSource.GetValue(nx, ny, nz);
 				if (value > valueLimit)
@@ -61,20 +61,20 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 
 #if 0
 void TestBlockLandApplication::initWorldBlocksLayers() {
-	int HeightMap[_worldHeight][_worldHeight];
+	int HeightMap[_worldXSize][_worldZSize];
 	infland::CLandscape LayerMaps[10];  //Hard coded because I'm lazy!
 	int NumLayerMaps = 0;
 	int BaseSeed;
 
-	m_Landscape.SetSize(_worldHeight, _worldHeight);
+	m_Landscape.SetSize(_worldXSize, _worldZSize);
 	m_Landscape.CreateAltitude();
 	BaseSeed = m_Landscape.GetSeed();
 
 	infland::CMap& Map = m_Landscape.GetAltitudeMap();
 
 	//Initialize our temporary height map array
-	for (int z = 0; z < _worldHeight; ++z) {
-		for (int x = 0; x < _worldHeight; ++x) {
+	for (int z = 0; z < _worldZSize; ++z) {
+		for (int x = 0; x < _worldXSize; ++x) {
 			float Height = Map.GetValue(x, z) * _worldHeight / 4 + _worldHeight / 2;
 			HeightMap[x][z] = Height;
 		}
@@ -83,7 +83,7 @@ void TestBlockLandApplication::initWorldBlocksLayers() {
 	//Create height maps for each layer
 	for (int i = 0; LAYERS[i].BlockID != BLOCK_NULL && i < 10; ++i) {
 		LayerMaps[i].SetSeed(BaseSeed + LAYERS[i].SeedOffset);
-		LayerMaps[i].SetSize(_worldHeight, _worldHeight);
+		LayerMaps[i].SetSize(_worldXSize, _worldZSize);
 		LayerMaps[i].CreateAltitude();
 		++NumLayerMaps;
 	}
@@ -94,8 +94,8 @@ void TestBlockLandApplication::initWorldBlocksLayers() {
 	for (int layer = 0; layer < NumLayerMaps; ++layer) {
 		infland::CMap & Map = LayerMaps[layer].GetAltitudeMap();
 
-		for (int z = 0; z < _worldHeight; ++z) {
-			for (int x = 0; x < _worldHeight; ++x) {
+		for (int z = 0; z < _worldZSize; ++z) {
+			for (int x = 0; x < _worldXSize; ++x) {
 				if (HeightMap[x][z] <= 0)
 				continue;
 				int Height = (Map.GetValue(x, z) + 1) / 2.0f * (LAYERS[layer].MaxLevel - LAYERS[layer].MinLevel) + LAYERS[layer].MinLevel;
@@ -119,11 +119,11 @@ void TestBlockLandApplication::initWorldBlocksLayers() {
 void TestBlockLandApplication::initWorldBlocksLight() {
 	const LightValue deltaLight = 16;
 
-	for (int z = 0; z < _worldHeight; ++z) {
+	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
 			LightValue light = 255;
 
-			for (int y = _worldYSize - 1; y >= 0; --y) {
+			for (int y = _worldHeight - 1; y >= 0; --y) {
 				getBlockLight(x, y, z) = light;
 
 				if (getBlock(x, y, z).type != BlockType::Air) {
@@ -187,7 +187,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 					}
 
 					blockType = defaultBlock;
-					if (y < sy + _worldYSize - 1)
+					if (y < sy + _worldHeight - 1)
 						blockType = getBlock(x, y + 1, z).type;
 
 					if (blockType == BlockType::Air) {
@@ -205,7 +205,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 					}
 
 					blockType = defaultBlock;
-					if (z < sz + _worldHeight - 1)
+					if (z < sz + _worldZSize - 1)
 						blockType = getBlock(x, y, z + 1).type;
 
 					if (blockType == BlockType::Air) {
@@ -343,8 +343,8 @@ Ogre::MaterialPtr TestBlockLandApplication::createTexture(const Ogre::String& pN
 }
 
 void TestBlockLandApplication::createWorldChunks() {
-	for (int z = 0; z < _worldHeight; z += CHUNK_SIZE) {
-		for (int y = 0; y < _worldYSize; y += CHUNK_SIZE) {
+	for (int z = 0; z < _worldZSize; z += CHUNK_SIZE) {
+		for (int y = 0; y < _worldHeight; y += CHUNK_SIZE) {
 			for (int x = 0; x < _worldXSize; x += CHUNK_SIZE) {
 				createChunk(x, y, z);
 			}
@@ -431,22 +431,23 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 	heightMap.load("heightmap.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	const Ogre::PixelBox& pb = heightMap.getPixelBox();
 	_worldXSize = pb.getWidth();
-	_worldYSize = pb.getHeight();
+	_worldZSize = pb.getHeight();
 	std::ostringstream ss;
-	ss << "*** initWorldBlocksSphere: size " << _worldXSize << ":" << _worldYSize << "***";
+	ss << "*** initWorldBlocksSphere: size " << _worldXSize << ":" << _worldZSize << "***";
 	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
-	_blocks = new Block[_worldYSize * _worldXSize * _worldHeight];
-	_blockChunkObjects = new Ogre::ManualObject*[_worldYSize * _worldXSize * _worldHeight];
-	_blockVertexCount = new int[_worldYSize * _worldXSize * _worldHeight];
-	memset(_blocks, 0, sizeof(Block) * _worldYSize * _worldXSize * _worldHeight);
-	memset(_blockVertexCount, 0, sizeof(int) * _worldYSize * _worldXSize * _worldHeight);
-	memset(_blockChunkObjects, 0, sizeof(Ogre::ManualObject*) * _worldYSize * _worldXSize * _worldHeight);
+	_blocks = new Block[_worldZSize * _worldXSize * _worldHeight];
+	_blockChunkObjects = new Ogre::ManualObject*[_worldZSize * _worldXSize * _worldHeight];
+	_blockVertexCount = new int[_worldZSize * _worldXSize * _worldHeight];
+	memset(_blocks, 0, sizeof(Block) * _worldZSize * _worldXSize * _worldHeight);
+	memset(_blockVertexCount, 0, sizeof(int) * _worldZSize * _worldXSize * _worldHeight);
+	memset(_blockChunkObjects, 0, sizeof(Ogre::ManualObject*) * _worldZSize * _worldXSize * _worldHeight);
 
-	for (int y = 0; y < _worldYSize; ++y) {
+	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
-			const Ogre::ColourValue& color = heightMap.getColourAt(x, y, 0);
+			const Ogre::ColourValue& color = heightMap.getColourAt(x, z, 0);
 			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * _worldHeight / 4.0f + _worldHeight / 2.0f);
-			for (int z = 0; z < height; ++z) {
+			for (int y = 0; y < height; ++y) {
+				assert(height < _worldHeight);
 				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max)) - static_cast<int>(BlockType::Grass)) + static_cast<int>(BlockType::Grass));
 			}
 		}

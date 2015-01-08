@@ -26,7 +26,7 @@ private:
 	static const int CHUNK_SIZE = 16;
 	static const int _worldHeight = 256;
 	int _worldXSize;
-	int _worldYSize;
+	int _worldZSize;
 
 	// Used for uniquely naming our chunks
 	int _chunkID;
@@ -78,7 +78,7 @@ private:
 		return getBlock(x, y, z).light;
 	}
 
-#define IDX(x, y, z) x + y * _worldXSize + z * _worldYSize * _worldXSize
+#define IDX(x, y, z) x + y * _worldXSize + z * _worldZSize * _worldXSize
 	// Read/write access method (doesn't check input)
 	inline Ogre::ManualObject*& getBlockChunkObject(const int x, const int y, const int z) const {
 		return _blockChunkObjects[IDX(x, y, z)];
