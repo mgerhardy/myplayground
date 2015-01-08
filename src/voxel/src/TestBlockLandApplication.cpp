@@ -143,9 +143,10 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 	const int sy = 0;
 	const int sz = 0;
 
+	int iVertex = 0;
 	for (BlockType iBlock = BlockType::Grass; iBlock != BlockType::Max; iBlock++) {
-		MeshChunk->begin(BLOCKINFO[iBlock].name);
-		int iVertex = 0;
+		MeshChunk->begin(BLOCKINFO[static_cast<int>(iBlock)].name);
+		iVertex = 0;
 
 		for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z) {
 			for (int y = StartY; y < CHUNK_SIZE + StartY; ++y) {
@@ -311,8 +312,8 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(MeshChunk);
 
-	_blockChunkObjects[StartX / CHUNK_SIZE][StartY / CHUNK_SIZE][StartZ / CHUNK_SIZE] = MeshChunk;
-	_blockVertexCount[StartX / CHUNK_SIZE][StartY / CHUNK_SIZE][StartZ / CHUNK_SIZE] = iVertex;
+	getBlockChunkObject(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = MeshChunk;
+	getBlockVertexCount(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = iVertex;
 
 	++_chunkID;
 }
@@ -502,8 +503,9 @@ void TestBlockLandApplication::computeWorldLightValues(const float WorldTime) {
 }
 
 void TestBlockLandApplication::initWorldBlocksSphere() {
-	for (BlockType i = BlockType::Air; BLOCKINFO[i].type != BlockType::Max; ++i) {
-		createSolidTexture(BLOCKINFO[i].name, BLOCKINFO[i].color);
+	for (BlockType i = BlockType::Air; BLOCKINFO[static_cast<int>(i)].type != BlockType::Max; i++) {
+		const BlockInfo& info = BLOCKINFO[static_cast<int>(i)];
+		createSolidTexture(info.name, info.color);
 	}
 
 	Ogre::Image heightMap;
@@ -519,7 +521,7 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 			const Ogre::ColourValue& color = heightMap.getColourAt(x, y, 0);
 			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * _worldHeight / 4.0f + _worldHeight / 2.0f);
 			for (int z = 0; z < height; ++z) {
-				getBlock(x, y, z) = (rand() % BlockType::Max) + BlockType::Grass;
+				getBlock(x, y, z).type = static_cast<BlockType>((rand() % static_cast<int>(BlockType::Max)) + static_cast<int>(BlockType::Grass));
 			}
 		}
 	}

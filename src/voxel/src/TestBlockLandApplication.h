@@ -6,6 +6,25 @@ enum class BlockType {
 	Air, Grass, Soil, Rock, Max
 };
 
+BlockType operator ++(BlockType c, int) {
+	switch (c) {
+	case BlockType::Air:
+		c = BlockType::Grass;
+		return BlockType::Air;
+	case BlockType::Grass:
+		c = BlockType::Soil;
+		return BlockType::Grass;
+	case BlockType::Soil:
+		c = BlockType::Rock;
+		return BlockType::Soil;
+	case BlockType::Rock:
+		c = BlockType::Max;
+		return BlockType::Rock;
+	default:
+		return c;
+	}
+}
+
 typedef unsigned char LightValue;
 
 struct Block {
