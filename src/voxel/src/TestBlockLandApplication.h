@@ -108,8 +108,7 @@ private:
 
 	void updateSceneLighting();
 
-	// Used for filling our block world
-	void initWorldBlocksSphere();
+	void initWorldBlocksTerrain();
 	void initWorldBlocksCaves();
 
 	bool frameEnded(const Ogre::FrameEvent &evt) override;

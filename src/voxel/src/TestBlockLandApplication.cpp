@@ -361,7 +361,7 @@ void TestBlockLandApplication::createScene() {
 	Ogre::Light* l = mSceneMgr->createLight("MainLight");
 	l->setPosition(20, 80, 50);
 
-	initWorldBlocksSphere();
+	initWorldBlocksTerrain();
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksCaves ***");
 	//initWorldBlocksCaves();
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksLight ***");
@@ -416,22 +416,22 @@ void TestBlockLandApplication::computeWorldLightValues(const float worldTime) {
 	_fogColor = _lightColor * 0.80f;
 }
 
-void TestBlockLandApplication::initWorldBlocksSphere() {
-	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksSphere: create textures ***");
+void TestBlockLandApplication::initWorldBlocksTerrain() {
+	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: create textures ***");
 	const int length = lengthof(BLOCKINFO);
 	for (int i = 1; i < length; ++i) {
 		const BlockInfo& info = BLOCKINFO[i];
 		createSolidTexture(info.name, info.color);
 	}
 
-	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksSphere: load heightmap ***");
+	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: load heightmap ***");
 	Ogre::Image heightMap;
 	heightMap.load("heightmap.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	const Ogre::PixelBox& pb = heightMap.getPixelBox();
 	_worldXSize = pb.getWidth();
 	_worldZSize = pb.getHeight();
 	std::ostringstream ss;
-	ss << "*** initWorldBlocksSphere: size " << _worldXSize << ":" << _worldZSize << "***";
+	ss << "*** initWorldBlocksTerrain: size " << _worldXSize << ":" << _worldZSize << "***";
 	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
 	_blocks = new Block[_worldZSize * _worldXSize * _worldHeight];
 	_blockChunkObjects = new Ogre::ManualObject*[_worldZSize * _worldXSize * _worldHeight];
