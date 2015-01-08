@@ -274,7 +274,9 @@ void TestBlockLandApplication::updateChunksFrame() {
 		return;
 
 #if 0
-	const int NUM_CHUNKS = _worldHeight / CHUNK_SIZE;
+	const int NUM_CHUNKSY = _worldHeight / CHUNK_SIZE;
+	const int NUM_CHUNKSX = _worldXSize / CHUNK_SIZE;
+	const int NUM_CHUNKSZ = _worldZSize / CHUNK_SIZE;
 
 	for (int i = 0; i < NUM_UPDATE_CHUNKS; ++i) {
 		// Ignore chunks with nothing in it
@@ -300,15 +302,15 @@ void TestBlockLandApplication::updateChunksFrame() {
 		// Find the next chunk to update
 		++_updateChunkX;
 
-		if (_updateChunkX >= NUM_CHUNKS) {
+		if (_updateChunkX >= NUM_CHUNKSX) {
 			_updateChunkX = 0;
 			++_updateChunkZ;
 
-			if (_updateChunkZ >= NUM_CHUNKS) {
+			if (_updateChunkZ >= NUM_CHUNKSZ) {
 				_updateChunkZ = 0;
 				++_updateChunkY;
 
-				if (_updateChunkY >= NUM_CHUNKS) {
+				if (_updateChunkY >= NUM_CHUNKSY) {
 					_updateChunkY = 0;
 					--_updateChunksCount;
 				}
