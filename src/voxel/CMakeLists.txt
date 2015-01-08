@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH /usr/lib/OGRE/cmake /usr/share/OGRE/cmake/modules /usr/loc
 
 if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_STANDARD_LIBRARIES "-ldl")
+set(CMAKE_CXX_STANDARD_LIBRARIES "-ldl -lnoise")
 endif()
 
 FIND_PACKAGE(OGRE)

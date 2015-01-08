@@ -2,6 +2,7 @@
 #include <Ogre.h>
 #include <OIS/OIS.h>
 #include <iostream>
+#include <libnoise/noise.h>
 
 const BlockInfo BLOCKINFO[] = {
 	{ BlockType::Air, "Air", Ogre::ColourValue(1.0, 1.0, 1.0) },
@@ -33,31 +34,29 @@ TestBlockLandApplication::~TestBlockLandApplication() {
 	delete[] _blocks;
 }
 
-#if 0
 void TestBlockLandApplication::initWorldBlocksCaves() {
-	noise::module::RidgedMulti NoiseSource;
-	float nx, ny, nz;
-	int x, y, z;
-
 	// Change these to increase/decrease the cave size scale
-	float delta = 0.01f;
-	float ValueLimit = 0.80f;
+	const float delta = 0.01f;
+	const float valueLimit = 0.80f;
 
+	noise::module::RidgedMulti NoiseSource;
 	// Initialize the noise module
 	NoiseSource.SetSeed(0);
 	NoiseSource.SetOctaveCount(4);
 
-	for (y = 0, ny = 0; y < _worldHeight; ++y, ny += delta) {
-		for (z = 0, nz = 0; z < _worldHeight; ++z, nz += delta) {
-			for (x = 0, nx = 0; x < _worldHeight; ++x, nx += delta) {
-				float Value = NoiseSource.GetValue(nx, ny, nz);
-				if (Value > ValueLimit)
-				GetBlock(x, y, z) = 0;
+	float nx, ny, nz;
+	for (int y = 0, ny = 0; y < _worldYSize; ++y, ny += delta) {
+		for (int z = 0, nz = 0; z < _worldHeight; ++z, nz += delta) {
+			for (int x = 0, nx = 0; x < _worldXSize; ++x, nx += delta) {
+				const float value = NoiseSource.GetValue(nx, ny, nz);
+				if (value > valueLimit)
+					getBlock(x, y, z).type = BlockType::Air;
 			}
 		}
 	}
 }
 
+#if 0
 void TestBlockLandApplication::initWorldBlocksLayers() {
 	int HeightMap[_worldHeight][_worldHeight];
 	infland::CLandscape LayerMaps[10];  //Hard coded because I'm lazy!
@@ -106,7 +105,7 @@ void TestBlockLandApplication::initWorldBlocksLayers() {
 				int MaxHeight = HeightMap[x][z] + Height;
 
 				for (int y = HeightMap[x][z]; y <= MaxHeight; ++y) {
-					GetBlock(x, y, z) = LAYERS[layer].BlockID;
+					getBlock(x, y, z).type = LAYERS[layer].BlockID;
 				}
 			}
 		}
@@ -115,22 +114,20 @@ void TestBlockLandApplication::initWorldBlocksLayers() {
 #endif
 
 void TestBlockLandApplication::initWorldBlocksLight() {
-	int x, y, z;
-	LightValue Light;
-	LightValue DeltaLight = 16;
+	const LightValue deltaLight = 16;
 
-	for (z = 0; z < _worldHeight; ++z) {
-		for (x = 0; x < _worldHeight; ++x) {
-			Light = 255;
+	for (int z = 0; z < _worldHeight; ++z) {
+		for (int x = 0; x < _worldXSize; ++x) {
+			LightValue light = 255;
 
-			for (y = _worldHeight - 1; y >= 0; --y) {
-				getBlockLight(x, y, z) = Light;
+			for (int y = _worldYSize - 1; y >= 0; --y) {
+				getBlockLight(x, y, z) = light;
 
-				if (getBlock(x, y, z) != 0) {
-					if (Light >= DeltaLight)
-						Light -= DeltaLight;
+				if (getBlock(x, y, z).type != BlockType::Air) {
+					if (light >= deltaLight)
+						light -= deltaLight;
 					else
-						Light = 0;
+						light = 0;
 				}
 			}
 		}
@@ -138,37 +135,31 @@ void TestBlockLandApplication::initWorldBlocksLight() {
 }
 
 void TestBlockLandApplication::createChunk(const int StartX, const int StartY, const int StartZ) {
-	Block LastBlock = 0;
-
 	Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
 
-	int iVertex = 0;
-	Block Block;
-	Block Block1;
-
 	/* Only create visible faces of chunk */
-	Block DefaultBlock = 1;
-	const int SX = 0;
-	const int SY = 0;
-	const int SZ = 0;
+	Block defaultBlock = { BlockType::Grass, 255 };
+	const int sx = 0;
+	const int sy = 0;
+	const int sz = 0;
 
-	for (int iBlock = 1; iBlock <= 4; ++iBlock) {
+	for (BlockType iBlock = BlockType::Grass; iBlock != BlockType::Max; iBlock++) {
 		MeshChunk->begin(BLOCKINFO[iBlock].name);
-		iVertex = 0;
+		int iVertex = 0;
 
 		for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z) {
 			for (int y = StartY; y < CHUNK_SIZE + StartY; ++y) {
 				for (int x = StartX; x < CHUNK_SIZE + StartX; ++x) {
-					Block = GetBlock(x, y, z);
-					if (Block != iBlock)
+					const Block& block = getBlock(x, y, z);
+					if (block.type != iBlock)
 						continue;
 
 					//x-1
-					Block1 = DefaultBlock;
-					if (x > SX)
-						Block1 = GetBlock(x - 1, y, z);
+					Block block1 = defaultBlock;
+					if (x > sx)
+						block1 = getBlock(x - 1, y, z);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x, y, z + 1);
 						MeshChunk->normal(-1, 0, 0);
 						MeshChunk->textureCoord(0, 1);
@@ -189,11 +180,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 					}
 
 					//x+1
-					Block1 = DefaultBlock;
-					if (x < SX + _worldXSize - 1)
-						Block1 = GetBlock(x + 1, y, z);
+					block1 = defaultBlock;
+					if (x < sx + _worldXSize - 1)
+						block1 = getBlock(x + 1, y, z);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x + 1, y, z);
 						MeshChunk->normal(1, 0, 0);
 						MeshChunk->textureCoord(0, 1);
@@ -214,11 +205,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 					}
 
 					//y-1
-					Block1 = DefaultBlock;
-					if (y > SY)
-						Block1 = GetBlock(x, y - 1, z);
+					block1 = defaultBlock;
+					if (y > sy)
+						block1 = getBlock(x, y - 1, z);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x, y, z);
 						MeshChunk->normal(0, -1, 0);
 						MeshChunk->textureCoord(0, 1);
@@ -239,11 +230,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 					}
 
 					//y+1
-					Block1 = DefaultBlock;
-					if (y < SY + _worldYSize - 1)
-						Block1 = GetBlock(x, y + 1, z);
+					block1 = defaultBlock;
+					if (y < sy + _worldYSize - 1)
+						block1 = getBlock(x, y + 1, z);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x, y + 1, z + 1);
 						MeshChunk->normal(0, 1, 0);
 						MeshChunk->textureCoord(0, 1);
@@ -264,11 +255,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 					}
 
 					//z-1
-					Block1 = DefaultBlock;
-					if (z > SZ)
-						Block1 = GetBlock(x, y, z - 1);
+					block1 = defaultBlock;
+					if (z > sz)
+						block1 = getBlock(x, y, z - 1);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x, y + 1, z);
 						MeshChunk->normal(0, 0, -1);
 						MeshChunk->textureCoord(0, 1);
@@ -289,11 +280,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 					}
 
 					//z+1
-					Block1 = DefaultBlock;
-					if (z < SZ + _worldHeight - 1)
-						Block1 = GetBlock(x, y, z + 1);
+					block1 = defaultBlock;
+					if (z < sz + _worldHeight - 1)
+						block1 = getBlock(x, y, z + 1);
 
-					if (Block1 == 0) {
+					if (block1.type == BlockType::Air) {
 						MeshChunk->position(x, y, z + 1);
 						MeshChunk->normal(0, 0, 1);
 						MeshChunk->textureCoord(0, 1);
@@ -371,28 +362,29 @@ bool TestBlockLandApplication::frameEnded(const Ogre::FrameEvent &evt) {
 }
 
 void TestBlockLandApplication::updateChunksFrame() {
-	int NUM_CHUNKS = _worldHeight / CHUNK_SIZE;
 	if (_updateChunksCount <= 0)
 		return;
 
+	const int NUM_CHUNKS = _worldHeight / CHUNK_SIZE;
+
 	for (int i = 0; i < NUM_UPDATE_CHUNKS; ++i) {
 		// Ignore chunks with nothing in it
-		if (_blockVertexCount[_updateChunkX][_updateChunkY][_updateChunkZ] > 0) {
+		if (getBlockVertexCount(_updateChunkX, _updateChunkY, _updateChunkZ) > 0) {
 			// Remove and delete the existing mesh from the scene
-			if (_blockChunkObjects[_updateChunkX][_updateChunkY][_updateChunkZ] != nullptr) {
-				Ogre::ManualObject* pMeshChunk = _blockChunkObjects[_updateChunkX][_updateChunkY][_updateChunkZ];
+			Ogre::ManualObject* pMeshChunk = getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ);
+			if (pMeshChunk != nullptr) {
 				pMeshChunk->detachFromParent();
 				delete pMeshChunk;
-				_blockChunkObjects[_updateChunkX][_updateChunkY][_updateChunkZ] = nullptr;
+				getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ) = nullptr;
 			}
 
 			// Create a new mesh for the chunk
-			Ogre::ManualObject* MeshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
-			MeshChunk->setDynamic(true);
-			MeshChunk->begin("Combine4");
-			createChunkCombineMat(MeshChunk, _updateChunkX * CHUNK_SIZE, _updateChunkY * CHUNK_SIZE, _updateChunkZ * CHUNK_SIZE);
-			_blockChunkObjects[_updateChunkX][_updateChunkY][_updateChunkZ] = MeshChunk;
-			mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(MeshChunk);
+			Ogre::ManualObject* meshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
+			meshChunk->setDynamic(true);
+			meshChunk->begin("Combine4");
+			createChunkCombineMat(meshChunk, _updateChunkX * CHUNK_SIZE, _updateChunkY * CHUNK_SIZE, _updateChunkZ * CHUNK_SIZE);
+			getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ) = meshChunk;
+			mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
 			++_chunkID;
 		}
 
@@ -527,7 +519,7 @@ void TestBlockLandApplication::initWorldBlocksSphere() {
 			const Ogre::ColourValue& color = heightMap.getColourAt(x, y, 0);
 			const int height = static_cast<int>((((color.r + color.g + color.b) / 1.5f) - 1.0f) * _worldHeight / 4.0f + _worldHeight / 2.0f);
 			for (int z = 0; z < height; ++z) {
-				GetBlock(x, y, z) = (rand() % 4) + 1;
+				getBlock(x, y, z) = (rand() % BlockType::Max) + BlockType::Grass;
 			}
 		}
 	}
