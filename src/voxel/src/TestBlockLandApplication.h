@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseApplication.h"
+#include <Ogre.h>
 
 enum class BlockType {
 	Air, Grass, Soil, Rock, Max
@@ -51,6 +52,27 @@ private:
 
 	// The number of vertices in each mesh chunk
 	int *_blockVertexCount;
+
+	inline void mesh(Ogre::ManualObject* meshChunk, const Ogre::Vector3& normal, int& vertexIndex, int x1, int y1, int z1, int x2, int y2, int z2, int x3,
+			int y3, int z3, int x4, int y4, int z4) const {
+		meshChunk->position(x1, y1, z1);
+		meshChunk->normal(normal);
+		meshChunk->textureCoord(0, 1);
+		meshChunk->position(x2, y2, z2);
+		meshChunk->normal(normal);
+		meshChunk->textureCoord(1, 1);
+		meshChunk->position(x3, y3, z3);
+		meshChunk->normal(normal);
+		meshChunk->textureCoord(1, 0);
+		meshChunk->position(x4, y4, z4);
+		meshChunk->normal(normal);
+		meshChunk->textureCoord(0, 0);
+
+		meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+		meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
+
+		vertexIndex += 4;
+	}
 
 	inline LightValue& getBlockLight(const int x, const int y, const int z) const {
 		return getBlock(x, y, z).light;
