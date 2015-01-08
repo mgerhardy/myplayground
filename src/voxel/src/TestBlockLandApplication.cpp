@@ -149,7 +149,10 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 
 	int iVertex = 0;
 	const int length = lengthof(BLOCKINFO);
-	for (int i = 0; i < length; ++i) {
+	std::ostringstream ss;
+	ss << "*** createChunk: " << StartX << ":" << StartY << ":" << StartZ << "***";
+	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
+	for (int i = 1; i < length; ++i) {
 		const BlockType type = BLOCKINFO[i].type;
 		meshChunk->begin(BLOCKINFO[i].name);
 		iVertex = 0;
