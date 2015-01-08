@@ -160,7 +160,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 						continue;
 
 					BlockType blockType = defaultBlock;
-					if (x >= sx)
+					if (x > sx)
 						blockType = getBlock(x - 1, y, z).type;
 
 					if (blockType == BlockType::Air) {
@@ -178,7 +178,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 					}
 
 					blockType = defaultBlock;
-					if (y >= sy)
+					if (y > sy)
 						blockType = getBlock(x, y - 1, z).type;
 
 					if (blockType == BlockType::Air) {
@@ -196,7 +196,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 					}
 
 					blockType = defaultBlock;
-					if (z >= sz)
+					if (z > sz)
 						blockType = getBlock(x, y, z - 1).type;
 
 					if (blockType == BlockType::Air) {
