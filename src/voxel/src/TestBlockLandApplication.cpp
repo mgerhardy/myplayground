@@ -142,31 +142,30 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 	Ogre::ManualObject* meshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
 
 	/* Only create visible faces of chunk */
-	const Block defaultBlock = { BlockType::Grass, 255 };
+	const BlockType defaultBlock = BlockType::Grass;
 	const int sx = 0;
 	const int sy = 0;
 	const int sz = 0;
 
-	int iVertex = 0;
+	int vertexIndex = 0;
 	const int length = lengthof(BLOCKINFO);
 	for (int i = 1; i < length; ++i) {
 		const BlockType type = BLOCKINFO[i].type;
 		meshChunk->begin(BLOCKINFO[i].name);
-		iVertex = 0;
+		vertexIndex = 0;
 
 		for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z) {
 			for (int y = StartY; y < CHUNK_SIZE + StartY; ++y) {
 				for (int x = StartX; x < CHUNK_SIZE + StartX; ++x) {
-					const Block& block = getBlock(x, y, z);
-					if (block.type != type)
+					if (getBlock(x, y, z).type != type)
 						continue;
 
 					//x-1
-					Block block1 = defaultBlock;
+					BlockType block1 = defaultBlock;
 					if (x > sx)
-						block1 = getBlock(x - 1, y, z);
+						block1 = getBlock(x - 1, y, z).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x, y, z + 1);
 						meshChunk->normal(-1, 0, 0);
 						meshChunk->textureCoord(0, 1);
@@ -180,18 +179,18 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(-1, 0, 0);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 
 					//x+1
 					block1 = defaultBlock;
 					if (x < sx + _worldXSize - 1)
-						block1 = getBlock(x + 1, y, z);
+						block1 = getBlock(x + 1, y, z).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x + 1, y, z);
 						meshChunk->normal(1, 0, 0);
 						meshChunk->textureCoord(0, 1);
@@ -205,18 +204,18 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(1, 0, 0);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 
 					//y-1
 					block1 = defaultBlock;
 					if (y > sy)
-						block1 = getBlock(x, y - 1, z);
+						block1 = getBlock(x, y - 1, z).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x, y, z);
 						meshChunk->normal(0, -1, 0);
 						meshChunk->textureCoord(0, 1);
@@ -230,18 +229,18 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(0, -1, 0);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 
 					//y+1
 					block1 = defaultBlock;
 					if (y < sy + _worldYSize - 1)
-						block1 = getBlock(x, y + 1, z);
+						block1 = getBlock(x, y + 1, z).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x, y + 1, z + 1);
 						meshChunk->normal(0, 1, 0);
 						meshChunk->textureCoord(0, 1);
@@ -255,18 +254,18 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(0, 1, 0);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 
 					//z-1
 					block1 = defaultBlock;
 					if (z > sz)
-						block1 = getBlock(x, y, z - 1);
+						block1 = getBlock(x, y, z - 1).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x, y + 1, z);
 						meshChunk->normal(0, 0, -1);
 						meshChunk->textureCoord(0, 1);
@@ -280,18 +279,18 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(0, 0, -1);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 
 					//z+1
 					block1 = defaultBlock;
 					if (z < sz + _worldHeight - 1)
-						block1 = getBlock(x, y, z + 1);
+						block1 = getBlock(x, y, z + 1).type;
 
-					if (block1.type == BlockType::Air) {
+					if (block1 == BlockType::Air) {
 						meshChunk->position(x, y, z + 1);
 						meshChunk->normal(0, 0, 1);
 						meshChunk->textureCoord(0, 1);
@@ -305,10 +304,10 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						meshChunk->normal(0, 0, 1);
 						meshChunk->textureCoord(0, 0);
 
-						meshChunk->triangle(iVertex, iVertex + 1, iVertex + 2);
-						meshChunk->triangle(iVertex + 2, iVertex + 3, iVertex);
+						meshChunk->triangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
+						meshChunk->triangle(vertexIndex + 2, vertexIndex + 3, vertexIndex);
 
-						iVertex += 4;
+						vertexIndex += 4;
 					}
 				}
 			}
@@ -319,7 +318,7 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
 
 	getBlockChunkObject(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = meshChunk;
-	getBlockVertexCount(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = iVertex;
+	getBlockVertexCount(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = vertexIndex;
 
 	++_chunkID;
 }
@@ -463,7 +462,7 @@ void TestBlockLandApplication::createScene() {
 
 	initWorldBlocksSphere();
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksCaves ***");
-	initWorldBlocksCaves();
+	//initWorldBlocksCaves();
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksLight ***");
 	initWorldBlocksLight();
 
