@@ -8,6 +8,7 @@ enum class BlockType {
 };
 
 typedef unsigned char LightValue;
+#define lengthof(x) (sizeof(x) / sizeof(*(x)))
 
 struct Block {
 	BlockType type;
@@ -18,6 +19,13 @@ struct BlockInfo {
 	BlockType type;
 	const char* name;
 	Ogre::ColourValue color;
+};
+
+struct Layer {
+	BlockType blockType;
+	int minLevel;
+	int maxLevel;
+	int seedOffset;
 };
 
 class TestBlockLandApplication: public BaseApplication {
@@ -110,6 +118,20 @@ private:
 
 	void initWorldBlocksTerrain();
 	void initWorldBlocksCaves();
+
+	inline BlockType getLayerType(int height) const {
+		static const Layer LAYERS[] = {
+			{ BlockType::Grass, 0, 80, 1 },
+			{ BlockType::Soil, 81, 190, 2 },
+			{ BlockType::Rock, 191, 255, 3 }
+		};
+		static const int length = lengthof(LAYERS);
+		for (int i = 0; i < length; ++i) {
+			if (height >= LAYERS[i].minLevel && height <= LAYERS[i].maxLevel)
+				return LAYERS[i].blockType;
+		}
+		return BlockType::Grass;
+	}
 
 	bool frameEnded(const Ogre::FrameEvent &evt) override;
 	bool keyPressed(const OIS::KeyEvent &arg) override;

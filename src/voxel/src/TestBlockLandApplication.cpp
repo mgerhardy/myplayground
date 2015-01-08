@@ -6,24 +6,9 @@
 const BlockInfo BLOCKINFO[] = {
 	{ BlockType::Air, "Air", Ogre::ColourValue(1.0, 1.0, 1.0) },
 	{ BlockType::Grass, "Grass", Ogre::ColourValue(0.0, 0.5, 0.0) },
-	{ BlockType::Soil, "Soil", Ogre::ColourValue(0.5, 0.5, 0.0) },
+	{ BlockType::Soil, "Soil", Ogre::ColourValue(0.5, 0.3, 0.0) },
 	{ BlockType::Rock, "Rock", Ogre::ColourValue(0.5, 0.5, 0.5) }
 };
-
-struct Layer {
-	BlockType blockType;
-	int minLevel;
-	int maxLevel;
-	int seedOffset;
-};
-
-const Layer LAYERS[] = {
-	{ BlockType::Grass, 0, 2, 1 },
-	{ BlockType::Soil, 0, 10, 2 },
-	{ BlockType::Rock, 20, 200, 3 }
-};
-
-#define lengthof(x) (sizeof(x) / sizeof(*(x)))
 
 TestBlockLandApplication::TestBlockLandApplication() :
 		_worldXSize(-1), _worldZSize(-1), _chunkID(1), _blocks(nullptr), _lightAngle(90), _worldTime(0.0f), _updateChunkX(0), _updateChunkY(0), _updateChunkZ(0), _updateChunksCount(
@@ -448,7 +433,7 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 			const int height = static_cast<int>(((color.r + color.g + color.b) / 3.0f) * 255.0f);
 			for (int y = 0; y < height; ++y) {
 				assert(height < _worldHeight);
-				getBlock(x, y, z).type = static_cast<BlockType>((rand() % (static_cast<int>(BlockType::Max) - static_cast<int>(BlockType::Grass))) + static_cast<int>(BlockType::Grass));
+				getBlock(x, y, z).type = getLayerType(height);
 			}
 		}
 	}
