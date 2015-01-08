@@ -12,10 +12,10 @@ const BlockInfo BLOCKINFO[] = {
 };
 
 struct Layer {
-	BlockType BlockID;
-	int MinLevel;
-	int MaxLevel;
-	int SeedOffset;
+	BlockType blockType;
+	int minLevel;
+	int maxLevel;
+	int seedOffset;
 };
 
 const Layer LAYERS[] = {
@@ -49,9 +49,9 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 	NoiseSource.SetOctaveCount(4);
 
 	float nx, ny, nz;
-	for (int y = 0, ny = 0; y < _worldYSize; ++y, ny += delta) {
-		for (int z = 0, nz = 0; z < _worldHeight; ++z, nz += delta) {
-			for (int x = 0, nx = 0; x < _worldXSize; ++x, nx += delta) {
+	for (int y = 0, ny = 0.0f; y < _worldYSize; ++y, ny += delta) {
+		for (int z = 0, nz = 0.0f; z < _worldHeight; ++z, nz += delta) {
+			for (int x = 0, nx = 0.0f; x < _worldXSize; ++x, nx += delta) {
 				const float value = NoiseSource.GetValue(nx, ny, nz);
 				if (value > valueLimit)
 					getBlock(x, y, z).type = BlockType::Air;
@@ -138,7 +138,7 @@ void TestBlockLandApplication::initWorldBlocksLight() {
 	}
 }
 
-void TestBlockLandApplication::createChunk(const int StartX, const int StartY, const int StartZ) {
+void TestBlockLandApplication::createChunk(const int startX, const int startY, const int startZ) {
 	Ogre::ManualObject* meshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
 
 	/* Only create visible faces of chunk */
@@ -154,18 +154,17 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 		meshChunk->begin(BLOCKINFO[i].name);
 		vertexIndex = 0;
 
-		for (int z = StartZ; z < CHUNK_SIZE + StartZ; ++z) {
-			for (int y = StartY; y < CHUNK_SIZE + StartY; ++y) {
-				for (int x = StartX; x < CHUNK_SIZE + StartX; ++x) {
+		for (int z = startZ; z < CHUNK_SIZE + startZ; ++z) {
+			for (int y = startY; y < CHUNK_SIZE + startY; ++y) {
+				for (int x = startX; x < CHUNK_SIZE + startX; ++x) {
 					if (getBlock(x, y, z).type != type)
 						continue;
 
-					//x-1
-					BlockType block1 = defaultBlock;
+					BlockType blockType = defaultBlock;
 					if (x > sx)
-						block1 = getBlock(x - 1, y, z).type;
+						blockType = getBlock(x - 1, y, z).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x, y, z + 1);
 						meshChunk->normal(-1, 0, 0);
 						meshChunk->textureCoord(0, 1);
@@ -185,12 +184,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						vertexIndex += 4;
 					}
 
-					//x+1
-					block1 = defaultBlock;
+					blockType = defaultBlock;
 					if (x < sx + _worldXSize - 1)
-						block1 = getBlock(x + 1, y, z).type;
+						blockType = getBlock(x + 1, y, z).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x + 1, y, z);
 						meshChunk->normal(1, 0, 0);
 						meshChunk->textureCoord(0, 1);
@@ -210,12 +208,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						vertexIndex += 4;
 					}
 
-					//y-1
-					block1 = defaultBlock;
+					blockType = defaultBlock;
 					if (y > sy)
-						block1 = getBlock(x, y - 1, z).type;
+						blockType = getBlock(x, y - 1, z).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x, y, z);
 						meshChunk->normal(0, -1, 0);
 						meshChunk->textureCoord(0, 1);
@@ -235,12 +232,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						vertexIndex += 4;
 					}
 
-					//y+1
-					block1 = defaultBlock;
+					blockType = defaultBlock;
 					if (y < sy + _worldYSize - 1)
-						block1 = getBlock(x, y + 1, z).type;
+						blockType = getBlock(x, y + 1, z).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x, y + 1, z + 1);
 						meshChunk->normal(0, 1, 0);
 						meshChunk->textureCoord(0, 1);
@@ -260,12 +256,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						vertexIndex += 4;
 					}
 
-					//z-1
-					block1 = defaultBlock;
+					blockType = defaultBlock;
 					if (z > sz)
-						block1 = getBlock(x, y, z - 1).type;
+						blockType = getBlock(x, y, z - 1).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x, y + 1, z);
 						meshChunk->normal(0, 0, -1);
 						meshChunk->textureCoord(0, 1);
@@ -285,12 +280,11 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 						vertexIndex += 4;
 					}
 
-					//z+1
-					block1 = defaultBlock;
+					blockType = defaultBlock;
 					if (z < sz + _worldHeight - 1)
-						block1 = getBlock(x, y, z + 1).type;
+						blockType = getBlock(x, y, z + 1).type;
 
-					if (block1 == BlockType::Air) {
+					if (blockType == BlockType::Air) {
 						meshChunk->position(x, y, z + 1);
 						meshChunk->normal(0, 0, 1);
 						meshChunk->textureCoord(0, 1);
@@ -317,8 +311,8 @@ void TestBlockLandApplication::createChunk(const int StartX, const int StartY, c
 
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
 
-	getBlockChunkObject(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = meshChunk;
-	getBlockVertexCount(StartX / CHUNK_SIZE, StartY / CHUNK_SIZE, StartZ / CHUNK_SIZE) = vertexIndex;
+	getBlockChunkObject(startX / CHUNK_SIZE, startY / CHUNK_SIZE, startZ / CHUNK_SIZE) = meshChunk;
+	getBlockVertexCount(startX / CHUNK_SIZE, startY / CHUNK_SIZE, startZ / CHUNK_SIZE) = vertexIndex;
 
 	++_chunkID;
 }
@@ -351,7 +345,6 @@ void TestBlockLandApplication::updateSceneLighting() {
 }
 
 bool TestBlockLandApplication::frameEnded(const Ogre::FrameEvent &evt) {
-#if 0
 	//This makes the world day last about 5 minutes of real time
 	_worldTime += evt.timeSinceLastFrame * 0.04;
 	_worldTime = fmod(_worldTime, 24.0f);
@@ -364,7 +357,6 @@ bool TestBlockLandApplication::frameEnded(const Ogre::FrameEvent &evt) {
 
 	//Update a few chunks of the world each frame
 	updateChunksFrame();
-#endif
 	return BaseApplication::frameEnded(evt);
 }
 
@@ -372,6 +364,7 @@ void TestBlockLandApplication::updateChunksFrame() {
 	if (_updateChunksCount <= 0)
 		return;
 
+#if 0
 	const int NUM_CHUNKS = _worldHeight / CHUNK_SIZE;
 
 	for (int i = 0; i < NUM_UPDATE_CHUNKS; ++i) {
@@ -413,6 +406,7 @@ void TestBlockLandApplication::updateChunksFrame() {
 			}
 		}
 	}
+#endif
 }
 
 Ogre::MaterialPtr TestBlockLandApplication::createSolidTexture(const Ogre::String& pName, const Ogre::ColourValue& color) {
