@@ -61,8 +61,6 @@ private:
 	// The number of vertices in each mesh chunk
 	int *_blockVertexCount;
 
-	Ogre::MaterialPtr _skyMaterial;
-
 	inline void mesh(Ogre::ManualObject* meshChunk, const Ogre::Vector3& normal, const Ogre::ColourValue& color, int& vertexIndex, int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 			int y3, int z3, int x4, int y4, int z4) const {
 		meshChunk->position(x1, y1, z1);
@@ -116,8 +114,7 @@ private:
 	void createWorldChunks();
 	void updateChunksFrame();
 
-	void createSkyTexture(const char* name);
-	void updateSkyTextureLight();
+	void updateSceneLighting();
 
 	void initWorldBlocksTerrain();
 	void initWorldBlocksCaves();
