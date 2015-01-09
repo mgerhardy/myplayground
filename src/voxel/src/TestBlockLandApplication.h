@@ -41,26 +41,6 @@ private:
 
 	Block* _blocks;
 
-	Ogre::ColourValue _lightColor;
-	Ogre::ColourValue _ambientColor;
-	Ogre::ColourValue _fogColor;
-	float _lightAngle;
-
-	float _worldTime;
-	// The current chunk index we're updating
-	int _updateChunkX;
-	int _updateChunkY;
-	int _updateChunkZ;
-	// Keeps track of whether to update chunks or not
-	int _updateChunksCount;
-	// Number of chunks to update each frame
-
-	// Stores the mesh object for each chunk
-	Ogre::ManualObject** _blockChunkObjects;
-
-	// The number of vertices in each mesh chunk
-	int *_blockVertexCount;
-
 	inline void mesh(Ogre::ManualObject* meshChunk, const Ogre::Vector3& normal, const Ogre::ColourValue& color, int& vertexIndex, int x1, int y1, int z1, int x2, int y2, int z2, int x3,
 			int y3, int z3, int x4, int y4, int z4) const {
 		meshChunk->position(x1, y1, z1);
@@ -94,27 +74,15 @@ private:
 	}
 
 #define IDX(x, y, z) x + y * _worldXSize + z * _worldZSize * _worldXSize
-	// Read/write access method (doesn't check input)
-	inline Ogre::ManualObject*& getBlockChunkObject(const int x, const int y, const int z) const {
-		return _blockChunkObjects[IDX(x, y, z)];
-	}
 	// Read/write access method for our block world (doesn't check input)
 	inline Block& getBlock(const int x, const int y, const int z) const {
 		return _blocks[IDX(x, y, z)];
-	}
-
-	// Read/write access method (doesn't check input)
-	inline int& getBlockVertexCount(const int x, const int y, const int z) const {
-		return _blockVertexCount[IDX(x, y, z)];
 	}
 #undef IDX
 
 	void initWorldBlocksLight();
 	void createChunk(const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks();
-	void updateChunksFrame();
-
-	void updateSceneLighting();
 
 	void initWorldBlocksTerrain();
 	void initWorldBlocksCaves();
@@ -133,10 +101,6 @@ private:
 		return BlockType::Grass;
 	}
 
-	bool frameEnded(const Ogre::FrameEvent &evt) override;
-	bool keyPressed(const OIS::KeyEvent &arg) override;
-	void computeWorldLightValues(const float WorldTime);
-	Ogre::MaterialPtr createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename);
 	Ogre::MaterialPtr createSolidTexture(const Ogre::String& pName, const Ogre::ColourValue& color);
 public:
 	TestBlockLandApplication();

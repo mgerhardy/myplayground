@@ -11,15 +11,11 @@ const BlockInfo BLOCKINFO[] = {
 };
 
 TestBlockLandApplication::TestBlockLandApplication() :
-		_worldXSize(-1), _worldZSize(-1), _chunkID(1), _blocks(nullptr), _lightAngle(90), _worldTime(0.0f), _updateChunkX(0), _updateChunkY(0), _updateChunkZ(0), _updateChunksCount(
-				0), _blockChunkObjects(nullptr), _lightColor(Ogre::ColourValue(1, 1, 1)), _fogColor(_lightColor * 0.8f), _ambientColor(_lightColor / 3.0f), _blockVertexCount(
-				nullptr) {
+		_worldXSize(-1), _worldZSize(-1), _chunkID(1), _blocks(nullptr) {
 }
 
 TestBlockLandApplication::~TestBlockLandApplication() {
 	delete[] _blocks;
-	delete[] _blockChunkObjects;
-	delete[] _blockVertexCount;
 }
 
 void TestBlockLandApplication::initWorldBlocksCaves() {
@@ -148,127 +144,16 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
 
-	getBlockChunkObject(startX / CHUNK_SIZE, startY / CHUNK_SIZE, startZ / CHUNK_SIZE) = meshChunk;
-	getBlockVertexCount(startX / CHUNK_SIZE, startY / CHUNK_SIZE, startZ / CHUNK_SIZE) = vertexIndex;
-
 	++_chunkID;
-}
-
-bool TestBlockLandApplication::keyPressed(const OIS::KeyEvent &arg) {
-	if (arg.key == OIS::KC_K) {
-		_worldTime += 0.1f;   //Increase world time a bit
-		if (_worldTime > 24.0f)
-			_worldTime -= 24.0f;
-
-		computeWorldLightValues(_worldTime);
-		updateSceneLighting();
-
-		++_updateChunksCount;
-	} else if (arg.key == OIS::KC_J) {
-		_worldTime -= 0.1f; //Decrease world time a bit
-		if (_worldTime < 0)
-			_worldTime += 24.0f;
-
-		computeWorldLightValues(_worldTime);
-		updateSceneLighting();
-
-		++_updateChunksCount;
-	}
-
-	return BaseApplication::keyPressed(arg);
-}
-
-void TestBlockLandApplication::updateSceneLighting() {
-}
-
-bool TestBlockLandApplication::frameEnded(const Ogre::FrameEvent &evt) {
-	//This makes the world day last about 5 minutes of real time
-	_worldTime += evt.timeSinceLastFrame * 0.04;
-	_worldTime = fmod(_worldTime, 24.0f);
-
-	computeWorldLightValues(_worldTime);
-	updateSceneLighting();
-
-	if (_updateChunksCount == 0)
-		++_updateChunksCount;
-
-	//Update a few chunks of the world each frame
-	updateChunksFrame();
-	return BaseApplication::frameEnded(evt);
-}
-
-void TestBlockLandApplication::updateChunksFrame() {
-	if (_updateChunksCount <= 0)
-		return;
-
-#if 0
-	const int NUM_CHUNKSY = _worldHeight / CHUNK_SIZE;
-	const int NUM_CHUNKSX = _worldXSize / CHUNK_SIZE;
-	const int NUM_CHUNKSZ = _worldZSize / CHUNK_SIZE;
-
-	for (int i = 0; i < NUM_UPDATE_CHUNKS; ++i) {
-		// Ignore chunks with nothing in it
-		if (getBlockVertexCount(_updateChunkX, _updateChunkY, _updateChunkZ) > 0) {
-			// Remove and delete the existing mesh from the scene
-			Ogre::ManualObject* pMeshChunk = getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ);
-			if (pMeshChunk != nullptr) {
-				pMeshChunk->detachFromParent();
-				delete pMeshChunk;
-				getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ) = nullptr;
-			}
-
-			// Create a new mesh for the chunk
-			Ogre::ManualObject* meshChunk = new Ogre::ManualObject("MeshMatChunk" + Ogre::StringConverter::toString(_chunkID));
-			meshChunk->setDynamic(true);
-			meshChunk->begin("Combine4");
-			createChunk(_updateChunkX * CHUNK_SIZE, _updateChunkY * CHUNK_SIZE, _updateChunkZ * CHUNK_SIZE);
-			getBlockChunkObject(_updateChunkX, _updateChunkY, _updateChunkZ) = meshChunk;
-			mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(meshChunk);
-			++_chunkID;
-		}
-
-		// Find the next chunk to update
-		++_updateChunkX;
-
-		if (_updateChunkX >= NUM_CHUNKSX) {
-			_updateChunkX = 0;
-			++_updateChunkZ;
-
-			if (_updateChunkZ >= NUM_CHUNKSZ) {
-				_updateChunkZ = 0;
-				++_updateChunkY;
-
-				if (_updateChunkY >= NUM_CHUNKSY) {
-					_updateChunkY = 0;
-					--_updateChunksCount;
-				}
-			}
-		}
-	}
-#endif
 }
 
 Ogre::MaterialPtr TestBlockLandApplication::createSolidTexture(const Ogre::String& pName, const Ogre::ColourValue& color) {
 	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General");
 	Ogre::Technique* tech = mat->getTechnique(0);
-	tech->setLightingEnabled(false);
+	tech->setLightingEnabled(true);
 	Ogre::Pass* pass = tech->getPass(0);
 	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
 	tex->setColourOperationEx(Ogre::LBX_MODULATE, Ogre::LBS_MANUAL, Ogre::LBS_CURRENT, color);
-	return mat;
-}
-
-Ogre::MaterialPtr TestBlockLandApplication::createTexture(const Ogre::String& pName, const Ogre::String& pImageFilename) {
-	Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(pName, "General");
-	Ogre::Technique* tech = mat->getTechnique(0);
-	tech->setLightingEnabled(false);
-	Ogre::Pass* pass = tech->getPass(0);
-	Ogre::TextureUnitState* tex = pass->createTextureUnitState();
-
-	tex->setTextureName(pImageFilename);
-	tex->setNumMipmaps(4);
-	tex->setTextureAnisotropy(1);
-	tex->setTextureFiltering(Ogre::FO_POINT, Ogre::FO_POINT, Ogre::FO_POINT);
 	return mat;
 }
 
@@ -305,49 +190,6 @@ void TestBlockLandApplication::createScene() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** done ***");
 }
 
-void TestBlockLandApplication::computeWorldLightValues(const float worldTime) {
-	//6am = SunRise
-	//Light is symmetric about noon
-	//4am-8am = dawn
-	//4am color = (0.1, 0.1, 0.1)
-	//6am color = (1, 0.6, 0.04)
-	//8am color = (1, 1, 1)
-
-	float baseWorldTime = std::fmod(worldTime, 24);
-
-	_lightAngle = baseWorldTime / 24.0f * 360.0f - 90.0f;
-	if (_lightAngle < 0)
-		_lightAngle += 360.0f;
-
-	if (baseWorldTime <= 4 || baseWorldTime >= 20) {
-		_lightColor = Ogre::ColourValue(0.1f, 0.1f, 0.1f);
-	} else if (baseWorldTime >= 8 && baseWorldTime <= 16) {
-		_lightColor = Ogre::ColourValue(1, 1, 1);
-	} else if (baseWorldTime >= 4 && baseWorldTime <= 6) {
-		_lightColor.r = (baseWorldTime - 4.0f) / 2.0f * 0.9f + 0.1f;
-		_lightColor.g = (baseWorldTime - 4.0f) / 2.0f * 0.5f + 0.1f;
-		_lightColor.b = (baseWorldTime - 4.0f) / 2.0f * -0.06f + 0.1f;
-	} else if (baseWorldTime >= 6 && baseWorldTime <= 8) {
-		_lightColor.r = 1.0f;
-		_lightColor.g = (baseWorldTime - 6.0f) / 2.0f * 0.4f + 0.6f;
-		_lightColor.b = (baseWorldTime - 6.0f) / 2.0f * 0.96f + 0.04f;
-	} else if (baseWorldTime >= 16 && baseWorldTime <= 18) {
-		_lightColor.r = 1.0f;
-		_lightColor.g = (18.0f - baseWorldTime) / 2.0f * 0.4f + 0.6f;
-		_lightColor.b = (18.0f - baseWorldTime) / 2.0f * 0.96f + 0.04f;
-	} else if (baseWorldTime >= 18 && baseWorldTime <= 20) {
-		_lightColor.r = (20.0f - baseWorldTime) / 2.0f * 0.9f + 0.1f;
-		_lightColor.g = (20.0f - baseWorldTime) / 2.0f * 0.5f + 0.1f;
-		_lightColor.b = (20.0f - baseWorldTime) / 2.0f * -0.06f + 0.1f;
-	} else	//Shouldn't get here
-	{
-		_lightColor = Ogre::ColourValue(1, 1, 1);
-	}
-
-	_ambientColor = _lightColor / 3.0f;
-	_fogColor = _lightColor * 0.80f;
-}
-
 void TestBlockLandApplication::initWorldBlocksTerrain() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: create textures ***");
 	const int length = lengthof(BLOCKINFO);
@@ -366,11 +208,7 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 	ss << "*** initWorldBlocksTerrain: size " << _worldXSize << ":" << _worldZSize << "***";
 	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
 	_blocks = new Block[_worldZSize * _worldXSize * _worldHeight];
-	_blockChunkObjects = new Ogre::ManualObject*[_worldZSize * _worldXSize * _worldHeight];
-	_blockVertexCount = new int[_worldZSize * _worldXSize * _worldHeight];
 	memset(_blocks, 0, sizeof(Block) * _worldZSize * _worldXSize * _worldHeight);
-	memset(_blockVertexCount, 0, sizeof(int) * _worldZSize * _worldXSize * _worldHeight);
-	memset(_blockChunkObjects, 0, sizeof(Ogre::ManualObject*) * _worldZSize * _worldXSize * _worldHeight);
 
 	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
