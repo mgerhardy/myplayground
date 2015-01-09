@@ -83,58 +83,18 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 				if (type == BlockType::Air)
 					continue;
 
-				const Ogre::ColourValue color = _ambientColor + BLOCKINFO[static_cast<int>(type)].color;
-
-				const float baseLight = getBlockLight(x, y, z) / 255.0f;
-				float factor;
-
-				if (_lightAngle >= 0 && _lightAngle <= 180) {
-					factor = sin(_lightAngle * 3.1415926f / 180.0f);
-				} else {
-					factor = 0;
-				}
-
-				if (factor < 0.1f)
-					factor = 0.1f;
-				Ogre::ColourValue blockColory1 = _lightColor * (factor * baseLight) + color;
-				blockColory1.saturate();
-				Ogre::ColourValue blockColory2 = _lightColor * (factor / 2.0f * baseLight) + color;
-				blockColory2.saturate();
-				Ogre::ColourValue blockColorz = _lightColor * (factor * 0.70f * baseLight) + color;
-				blockColorz.saturate();
-				blockColorz *= 0.80f;
-
-				if (_lightAngle >= 315 || _lightAngle <= 45) {
-					factor = fabs(cos(_lightAngle * 3.1415926f / 180.0f));
-				} else {
-					factor = fabs(sin(_lightAngle * 3.1415926f / 180.0f));
-				}
-
-				if (factor < 0.1f)
-					factor = 0.1f;
-				Ogre::ColourValue blockColorx1 = _lightColor * (factor * 0.80f * baseLight) + color;
-				blockColorx1.saturate();
-				blockColorx1 *= 0.95f;
-
-				if (_lightAngle >= 135 && _lightAngle <= 225) {
-					factor = fabs(cos(_lightAngle * 3.1415926f / 180.0f));
-				} else {
-					factor = fabs(sin(_lightAngle * 3.1415926f / 180.0f));
-				}
-
-				if (factor < 0.1f)
-					factor = 0.1f;
-				Ogre::ColourValue blockColorx2 = _lightColor * (factor * 0.80f * baseLight) + color;
-				blockColorx2.saturate();
-				blockColorx2 *= 0.95f;
+				const float blockLightX = getBlockLight(x, y, z) / 255.0f;
+				const float blockLightZ = blockLightX * 0.9f;
+				const float blockLightY = blockLightX * 0.8f;
 
 				BlockType blockType = defaultBlock;
 				if (x > sx)
 					blockType = getBlock(x - 1, y, z).type;
 
+				const Ogre::ColourValue& color = BLOCKINFO[static_cast<int>(type)].color;
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(-1, 0, 0);
-					mesh(meshChunk, normal, blockColorx1, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
+					mesh(meshChunk, normal, color * blockLightX, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
 				}
 
 				blockType = defaultBlock;
@@ -143,7 +103,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(1, 0, 0);
-					mesh(meshChunk, normal, blockColorx2, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
+					mesh(meshChunk, normal, color * blockLightX, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
 				}
 
 				blockType = defaultBlock;
@@ -152,7 +112,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, -1, 0);
-					mesh(meshChunk, normal, blockColory1, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
+					mesh(meshChunk, normal, color * blockLightY, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
 				}
 
 				blockType = defaultBlock;
@@ -161,7 +121,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 1, 0);
-					mesh(meshChunk, normal, blockColory2, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
+					mesh(meshChunk, normal, color * blockLightY, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
 				}
 
 				blockType = defaultBlock;
@@ -170,7 +130,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 0, -1);
-					mesh(meshChunk, normal, blockColorz, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
+					mesh(meshChunk, normal, color * blockLightZ, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
 				}
 
 				blockType = defaultBlock;
@@ -179,7 +139,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 0, 1);
-					mesh(meshChunk, normal, blockColorz, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
+					mesh(meshChunk, normal, color * blockLightZ, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
 				}
 			}
 		}
