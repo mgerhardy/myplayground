@@ -44,64 +44,6 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 	}
 }
 
-#if 0
-void TestBlockLandApplication::initWorldBlocksLayers() {
-	int heightMap[_worldXSize][_worldZSize];
-	infland::CLandscape LayerMaps[10];  //Hard coded because I'm lazy!
-	int numLayerMaps = 0;
-	int baseSeed;
-
-	m_Landscape.SetSize(_worldXSize, _worldZSize);
-	m_Landscape.CreateAltitude();
-	baseSeed = m_Landscape.GetSeed();
-
-	infland::CMap& map = m_Landscape.GetAltitudeMap();
-
-	//Initialize our temporary height map array
-	for (int z = 0; z < _worldZSize; ++z) {
-		for (int x = 0; x < _worldXSize; ++x) {
-			const float height = map.GetValue(x, z);
-			heightMap[x][z] = height;
-		}
-	}
-
-	//Create height maps for each layer
-	const int length = lengthof(LAYERS);
-	for (int i = 0; i < length; ++i) {
-		LayerMaps[i].SetSeed(BaseSeed + LAYERS[i].SeedOffset);
-		LayerMaps[i].SetSize(_worldXSize, _worldZSize);
-		LayerMaps[i].CreateAltitude();
-		++numLayerMaps;
-	}
-
-	int layer = 0;
-
-	// Fill in the blocks from all layers
-	for (int layer = 0; layer < numLayerMaps; ++layer) {
-		infland::CMap & Map = LayerMaps[layer].GetAltitudeMap();
-
-		for (int z = 0; z < _worldZSize; ++z) {
-			for (int x = 0; x < _worldXSize; ++x) {
-				if (HeightMap[x][z] <= 0)
-					continue;
-				int height = (Map.GetValue(x, z) + 1) / 2.0f * (LAYERS[layer].maxLevel - LAYERS[layer].minLevel) + LAYERS[layer].minLevel;
-
-				//Don't fill the map below 0 height
-				if (HeightMap[x][z] - height < 0.0f)
-					height = HeightMap[x][z];
-				HeightMap[x][z] -= height;
-
-				int maxHeight = HeightMap[x][z] + height;
-
-				for (int y = HeightMap[x][z]; y <= maxHeight; ++y) {
-					getBlock(x, y, z).type = LAYERS[layer].blockType;
-				}
-			}
-		}
-	}
-}
-#endif
-
 void TestBlockLandApplication::initWorldBlocksLight() {
 	const LightValue deltaLight = 16;
 
@@ -141,6 +83,10 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 				if (type == BlockType::Air)
 					continue;
 
+				const float blockLightX = getBlockLight(x, y, z) / 255.0f;
+				const float blockLightZ = blockLightX * 0.9f;
+				const float blockLightY = blockLightX * 0.8f;
+
 				BlockType blockType = defaultBlock;
 				if (x > sx)
 					blockType = getBlock(x - 1, y, z).type;
@@ -148,7 +94,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 				const Ogre::ColourValue& color = BLOCKINFO[static_cast<int>(type)].color;
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(-1, 0, 0);
-					mesh(meshChunk, normal, color, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
+					mesh(meshChunk, normal, color * blockLightX, vertexIndex, x, y, z + 1, x, y + 1, z + 1, x, y + 1, z, x, y, z);
 				}
 
 				blockType = defaultBlock;
@@ -157,7 +103,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(1, 0, 0);
-					mesh(meshChunk, normal, color, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
+					mesh(meshChunk, normal, color * blockLightX, vertexIndex, x + 1, y, z, x + 1, y + 1, z, x + 1, y + 1, z + 1, x + 1, y, z + 1);
 				}
 
 				blockType = defaultBlock;
@@ -166,7 +112,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, -1, 0);
-					mesh(meshChunk, normal, color, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
+					mesh(meshChunk, normal, color * blockLightY, vertexIndex, x, y, z, x + 1, y, z, x + 1, y, z + 1, x, y, z + 1);
 				}
 
 				blockType = defaultBlock;
@@ -175,7 +121,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 1, 0);
-					mesh(meshChunk, normal, color, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
+					mesh(meshChunk, normal, color * blockLightY, vertexIndex, x, y + 1, z + 1, x + 1, y + 1, z + 1, x + 1, y + 1, z, x, y + 1, z);
 				}
 
 				blockType = defaultBlock;
@@ -184,7 +130,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 0, -1);
-					mesh(meshChunk, normal, color, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
+					mesh(meshChunk, normal, color * blockLightZ, vertexIndex, x, y + 1, z, x + 1, y + 1, z, x + 1, y, z, x, y, z);
 				}
 
 				blockType = defaultBlock;
@@ -193,7 +139,7 @@ void TestBlockLandApplication::createChunk(const int startX, const int startY, c
 
 				if (blockType == BlockType::Air) {
 					const Ogre::Vector3 normal(0, 0, 1);
-					mesh(meshChunk, normal, color, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
+					mesh(meshChunk, normal, color * blockLightZ, vertexIndex, x, y, z + 1, x + 1, y, z + 1, x + 1, y + 1, z + 1, x, y + 1, z + 1);
 				}
 			}
 		}
