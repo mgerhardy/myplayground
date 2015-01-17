@@ -5,6 +5,7 @@ private:
 	ai::Zone _zone;
 
 public:
-	Map() {
+	Map() :
+			_zone("map") {
 	}
-}
+};
