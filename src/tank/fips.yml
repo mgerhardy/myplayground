@@ -1,0 +1,9 @@
+#imports:
+#    - https://github.com/mgerhardy/simpleai.git
+
+exports:
+    header-dirs:
+        - src
+        - src/server
+    modules:
+        server: src/server
