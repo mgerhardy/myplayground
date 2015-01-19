@@ -4,11 +4,9 @@
 #include <algorithm>
 
 /**
- * @brief Lockless queue that allocated an internal @c Node structure which each item that is inserted.
+ * @brief Lockless queue that allocates an internal @c Node structure for each item that is inserted.
  *
  * This queue orders elements FIFO (first-in-first-out).
- *
- * This queue is best used with
  *
  * http://web.cecs.pdx.edu/~walpole/class/cs510/papers/08.pdf
  *
