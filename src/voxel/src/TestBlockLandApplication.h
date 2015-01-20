@@ -80,6 +80,7 @@ private:
 	}
 #undef IDX
 
+	void createHeightMapImage();
 	void initWorldBlocksLight();
 	void createChunk(const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks();

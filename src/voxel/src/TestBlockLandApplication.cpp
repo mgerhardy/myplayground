@@ -185,6 +185,31 @@ void TestBlockLandApplication::createScene() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** done ***");
 }
 
+void TestBlockLandApplication::createHeightMapImage() {
+	anl::CMWC4096 rnd;
+	rnd.setSeedTime();
+	anl::CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
+
+	frac1.setSeed(rnd.get());
+
+	anl::CImplicitAutoCorrect ac1(0.0, 1.0);
+
+	ac1.setSource(&frac1);
+
+	anl::CRGBACompositeChannels compose1(anl::RGB);
+
+	compose1.setRedSource(&ac1);
+	compose1.setGreenSource(&ac1);
+	compose1.setBlueSource(&ac1);
+	compose1.setAlphaSource(1.0);
+
+	anl::TArray2D<TVec4D<float>> img(256, 256);
+
+	anl::SMappingRanges ranges;
+	mapRGBA2D(anl::SEAMLESS_NONE, img ,compose1 ,ranges, 0);
+	saveRGBAArray((char*)"heightmap.tga", &img);
+}
+
 void TestBlockLandApplication::initWorldBlocksTerrain() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: create textures ***");
 	const int length = lengthof(BLOCKINFO);
@@ -193,21 +218,18 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 		createSolidTexture(info.name, info.color);
 	}
 
-	anl::CMWC4096 rnd;
-	rnd.setSeedTime();
-	anl::CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
-
-	frac1.setSeed(rnd.get());
-
+	createHeightMapImage();
 
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: load heightmap ***");
 	Ogre::Image heightMap;
-	heightMap.load("heightmap.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+	heightMap.load("heightmap.tga", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	const Ogre::PixelBox& pb = heightMap.getPixelBox();
 	_worldXSize = pb.getWidth();
 	_worldZSize = pb.getHeight();
+
 	std::ostringstream ss;
 	ss << "*** initWorldBlocksTerrain: size " << _worldXSize << ":" << _worldZSize << "***";
+
 	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
 	_blocks = new Block[_worldZSize * _worldXSize * _worldHeight];
 	memset(_blocks, 0, sizeof(Block) * _worldZSize * _worldXSize * _worldHeight);
