@@ -2,6 +2,9 @@
 
 #include "BaseApplication.h"
 #include <Ogre.h>
+#include "accidentalnoise/include/anl.h"
+
+using namespace anl;
 
 enum class BlockType {
 	Air, Grass, Soil, Rock, Max
@@ -80,7 +83,7 @@ private:
 	}
 #undef IDX
 
-	void createHeightMapImage();
+	TArray2D<TVec4D<float>> createHeightMapImage();
 	void initWorldBlocksLight();
 	void createChunk(const int StartX, const int StartY, const int StartZ);
 	void createWorldChunks();

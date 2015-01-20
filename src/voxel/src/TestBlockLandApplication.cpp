@@ -1,7 +1,6 @@
 #include "TestBlockLandApplication.h"
 #include <OIS.h>
 #include <iostream>
-#include "accidentalnoise/include/anl.h"
 
 const BlockInfo BLOCKINFO[] = {
 	{ BlockType::Air, "Air", Ogre::ColourValue(1.0, 1.0, 1.0) },
@@ -185,29 +184,33 @@ void TestBlockLandApplication::createScene() {
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** done ***");
 }
 
-void TestBlockLandApplication::createHeightMapImage() {
-	anl::CMWC4096 rnd;
+TArray2D<TVec4D<float>> TestBlockLandApplication::createHeightMapImage() {
+	CMWC4096 rnd;
 	rnd.setSeedTime();
-	anl::CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
+	CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
 
 	frac1.setSeed(rnd.get());
 
-	anl::CImplicitAutoCorrect ac1(0.0, 1.0);
+	CImplicitAutoCorrect ac1(0.0, 1.0);
 
 	ac1.setSource(&frac1);
 
-	anl::CRGBACompositeChannels compose1(anl::RGB);
+	CRGBACompositeChannels compose1(anl::RGB);
 
 	compose1.setRedSource(&ac1);
 	compose1.setGreenSource(&ac1);
 	compose1.setBlueSource(&ac1);
 	compose1.setAlphaSource(1.0);
 
-	anl::TArray2D<TVec4D<float>> img(256, 256);
+	TArray2D<TVec4D<float>> img(256, 256);
 
-	anl::SMappingRanges ranges;
+	SMappingRanges ranges;
 	mapRGBA2D(anl::SEAMLESS_NONE, img ,compose1 ,ranges, 0);
+
+	//Just for debugging purpose
 	saveRGBAArray((char*)"heightmap.tga", &img);
+
+	return img;
 }
 
 void TestBlockLandApplication::initWorldBlocksTerrain() {
@@ -218,27 +221,24 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 		createSolidTexture(info.name, info.color);
 	}
 
-	createHeightMapImage();
+	TArray2D<TVec4D<float>> map = createHeightMapImage();
 
-	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: load heightmap ***");
-	Ogre::Image heightMap;
-	heightMap.load("heightmap.tga", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-	const Ogre::PixelBox& pb = heightMap.getPixelBox();
-	_worldXSize = pb.getWidth();
-	_worldZSize = pb.getHeight();
+	_worldXSize = map.width();
+	_worldZSize = map.height();
 
 	std::ostringstream ss;
 	ss << "*** initWorldBlocksTerrain: size " << _worldXSize << ":" << _worldZSize << "***";
 
-	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
 	_blocks = new Block[_worldZSize * _worldXSize * _worldHeight];
 	memset(_blocks, 0, sizeof(Block) * _worldZSize * _worldXSize * _worldHeight);
 
+	Ogre::LogManager::getSingletonPtr()->logMessage(ss.str().c_str());
+
 	for (int z = 0; z < _worldZSize; ++z) {
 		for (int x = 0; x < _worldXSize; ++x) {
-			const Ogre::ColourValue& color = heightMap.getColourAt(x, z, 0);
 			//TODO: scale into world height
-			const int height = static_cast<int>(((color.r + color.g + color.b) / 3.0f) * 255.0f);
+			TVec4D<float> color = map.get(x, z);
+			const int height = static_cast<int>(((color.get_x() + color.get_y() + color.get_z()) / 3.0f) * 255.0f);
 			for (int y = 0; y < height; ++y) {
 				assert(height < _worldHeight);
 				getBlock(x, y, z).type = getLayerType(height);
