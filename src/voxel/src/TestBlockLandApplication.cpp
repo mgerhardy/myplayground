@@ -1,7 +1,7 @@
 #include "TestBlockLandApplication.h"
-#include <OIS/OIS.h>
+#include <OIS.h>
 #include <iostream>
-#include <libnoise/noise.h>
+#include "accidentalnoise/include/anl.h"
 
 const BlockInfo BLOCKINFO[] = {
 	{ BlockType::Air, "Air", Ogre::ColourValue(1.0, 1.0, 1.0) },
@@ -23,18 +23,13 @@ void TestBlockLandApplication::initWorldBlocksCaves() {
 	const float delta = 0.01f;
 	const float valueLimit = 0.80f;
 
-	noise::module::RidgedMulti NoiseSource;
-	// Initialize the noise module
-	NoiseSource.SetSeed(0);
-	NoiseSource.SetOctaveCount(4);
-
 	float nx, ny, nz;
 	for (int y = 0, ny = 0.0f; y < _worldHeight; ++y, ny += delta) {
 		for (int z = 0, nz = 0.0f; z < _worldZSize; ++z, nz += delta) {
 			for (int x = 0, nx = 0.0f; x < _worldXSize; ++x, nx += delta) {
-				const float value = NoiseSource.GetValue(nx, ny, nz);
-				if (value > valueLimit)
-					getBlock(x, y, z).type = BlockType::Air;
+			//	const float value = NoiseSource.GetValue(nx, ny, nz);
+			//	if (value > valueLimit)
+			//		getBlock(x, y, z).type = BlockType::Air;
 			}
 		}
 	}
@@ -197,6 +192,13 @@ void TestBlockLandApplication::initWorldBlocksTerrain() {
 		const BlockInfo& info = BLOCKINFO[i];
 		createSolidTexture(info.name, info.color);
 	}
+
+	anl::CMWC4096 rnd;
+	rnd.setSeedTime();
+	anl::CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
+
+	frac1.setSeed(rnd.get());
+
 
 	Ogre::LogManager::getSingletonPtr()->logMessage("*** initWorldBlocksTerrain: load heightmap ***");
 	Ogre::Image heightMap;
