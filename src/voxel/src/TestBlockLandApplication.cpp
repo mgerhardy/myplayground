@@ -187,25 +187,27 @@ void TestBlockLandApplication::createScene() {
 TArray2D<TVec4D<float>> TestBlockLandApplication::createHeightMapImage() {
 	CMWC4096 rnd;
 	rnd.setSeedTime();
-	CImplicitFractal frac1(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
+	CImplicitFractal fractalPlains(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
+	fractalPlains.setNumOctaves(2);
+	fractalPlains.setFrequency(1);
+	fractalPlains.setSeed(rnd.get());
 
-	frac1.setSeed(rnd.get());
+	CImplicitAutoCorrect autoCorrectPlains(0.0, 1.0);
+	autoCorrectPlains.setSource(&fractalPlains);
 
-	CImplicitAutoCorrect ac1(0.0, 1.0);
+	CImplicitScaleOffset scaleOffsetPlains(0.1, 0.0);
+	scaleOffsetPlains.setSource(&autoCorrectPlains);
 
-	ac1.setSource(&frac1);
-
-	CRGBACompositeChannels compose1(anl::RGB);
-
-	compose1.setRedSource(&ac1);
-	compose1.setGreenSource(&ac1);
-	compose1.setBlueSource(&ac1);
-	compose1.setAlphaSource(1.0);
+	CRGBACompositeChannels composite(anl::RGB);
+	composite.setRedSource(&scaleOffsetPlains);
+	composite.setGreenSource(&scaleOffsetPlains);
+	composite.setBlueSource(&scaleOffsetPlains);
+	composite.setAlphaSource(1.0);
 
 	TArray2D<TVec4D<float>> img(256, 256);
 
 	SMappingRanges ranges;
-	mapRGBA2D(anl::SEAMLESS_NONE, img ,compose1 ,ranges, 0);
+	mapRGBA2D(anl::SEAMLESS_NONE, img ,composite ,ranges, 0);
 
 	//Just for debugging purpose
 	saveRGBAArray((char*)"heightmap.tga", &img);
