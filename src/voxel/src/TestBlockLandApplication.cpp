@@ -187,18 +187,22 @@ void TestBlockLandApplication::createScene() {
 TArray2D<TVec4D<float>> TestBlockLandApplication::createHeightMapImage() {
 	CMWC4096 rnd;
 	rnd.setSeedTime();
+
+	CImplicitGradient groundGradient;
+	groundGradient.setGradient(0.0, 0.0, 1.0, 1.0, 0.0, 0.0);
+
 	/**
 	 * Generating plains
 	 */
 	CImplicitFractal fractalPlains(anl::EFractalTypes::FBM, anl::GRADIENT, anl::QUINTIC);
 	fractalPlains.setNumOctaves(2);
-	fractalPlains.setFrequency(1);
+	fractalPlains.setFrequency(1.0);
 	fractalPlains.setSeed(rnd.get());
 
 	CImplicitAutoCorrect autoCorrectPlains(0.0, 1.0);
 	autoCorrectPlains.setSource(&fractalPlains);
 
-	CImplicitScaleOffset scaleOffsetPlains(0.1, 0.0);
+	CImplicitScaleOffset scaleOffsetPlains(0.125, 0.0);
 	scaleOffsetPlains.setSource(&autoCorrectPlains);
 
 	/**
@@ -206,13 +210,13 @@ TArray2D<TVec4D<float>> TestBlockLandApplication::createHeightMapImage() {
 	 */
 	CImplicitFractal fractalHighlands(anl::RIDGEDMULTI, anl::GRADIENT, anl::QUINTIC);
 	fractalHighlands.setNumOctaves(4);
-	fractalHighlands.setFrequency(1);
+	fractalHighlands.setFrequency(0.3);
 	fractalHighlands.setSeed(rnd.get());
 
-	CImplicitAutoCorrect autoCorrectHighlands(0.0, 1.2);
+	CImplicitAutoCorrect autoCorrectHighlands(-0.5, 0.75);
 	autoCorrectHighlands.setSource(&fractalHighlands);
 
-	CImplicitScaleOffset scaleOffsetHighlands(0.75, 0.0);
+	CImplicitScaleOffset scaleOffsetHighlands(0.75, 0.5);
 	scaleOffsetHighlands.setSource(&autoCorrectHighlands);
 
 	/**
@@ -220,25 +224,47 @@ TArray2D<TVec4D<float>> TestBlockLandApplication::createHeightMapImage() {
 	 */
 	CImplicitFractal fractalMountains(anl::BILLOW, anl::GRADIENT, anl::QUINTIC);
 	fractalMountains.setNumOctaves(8);
-	fractalMountains.setFrequency(0.1);
+	fractalMountains.setFrequency(0.01);
 	fractalMountains.setSeed(rnd.get());
 
-	CImplicitAutoCorrect autoCorrectMountains(0.0, 2.0);
+	CImplicitAutoCorrect autoCorrectMountains(1.2, 2.0);
 	autoCorrectMountains.setSource(&fractalMountains);
 
 	CImplicitScaleOffset scaleOffsetMountains(2.0, 0.0);
 	scaleOffsetMountains.setSource(&autoCorrectMountains);
 
-	/*CImplicitSelect selection;
-	selection.setLowSource(&scaleOffsetHighlands);
-	selection.setHighSource(&scaleOffsetMountains);
-	selection.setThreshold(0.1);
-	selection.setFalloff(0.15);*/
+	/**
+	 * Merge terrains
+	 */
+	CImplicitFractal terrainTypeFractal(anl::FBM, anl::GRADIENT, anl::QUINTIC);
+    terrainTypeFractal.setNumOctaves(3);
+    terrainTypeFractal.setFrequency(0.125);
+    terrainTypeFractal.setSeed(rnd.get());
 
+    CImplicitAutoCorrect terrainAutoCorrect(-1.0, 1.0);
+    terrainAutoCorrect.setSource(&terrainTypeFractal);
+
+    CImplicitScaleDomain terrainTypeYScale;
+    terrainTypeYScale.setSource(&terrainAutoCorrect);
+    terrainTypeYScale.setScale(1.0, 0.0);
+
+    CImplicitCache terrainTypeCache;
+    terrainTypeCache.setSource(&terrainTypeYScale);
+
+	CImplicitSelect selection;
+	selection.setLowSource(&scaleOffsetPlains);
+	selection.setHighSource(&scaleOffsetHighlands);
+	selection.setControlSource(&terrainTypeYScale);
+	selection.setThreshold(0.1);
+	selection.setFalloff(0.3);
+
+	/**
+	 * Create heigthmap
+	 */
 	CRGBACompositeChannels composite(anl::RGB);
-	composite.setRedSource(&scaleOffsetPlains);
-	composite.setGreenSource(&scaleOffsetPlains);
-	composite.setBlueSource(&scaleOffsetPlains);
+	composite.setRedSource(&selection);
+	composite.setGreenSource(&selection);
+	composite.setBlueSource(&selection);
 	composite.setAlphaSource(1.0);
 
 	TArray2D<TVec4D<float>> img(256, 256);
